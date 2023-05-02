@@ -12,8 +12,7 @@ import main.context.HomeHandler;
 public class TestManager {
 
   private static void registerContext(HttpServer s) {
-    s.createContext("/home", new HomeHandler());
-
+    s.createContext("/", new HomeHandler());
   }
 
   public static void main(String[] args) {
