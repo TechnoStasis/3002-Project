@@ -7,9 +7,8 @@ import com.sun.net.httpserver.HttpHandler;
 
 public class HomeHandler implements HttpHandler {
 
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        System.out.println("HI");
-    }
-
+  @Override
+  public void handle(HttpExchange exchange) throws IOException {
+    System.out.println("HI");
+  }
 }

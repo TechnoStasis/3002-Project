@@ -11,30 +11,26 @@ import main.context.HomeHandler;
 
 public class TestManager {
 
-  private static void log(Object s) {
-    System.out.println(s);
-  }
-
-  private static void registerContexts(HttpServer s) {
+  private static void registerContext(HttpServer s) {
     s.createContext("/home", new HomeHandler());
+
   }
 
   public static void main(String[] args) {
-    try {
-      HttpServer s = HttpServer.create(new InetSocketAddress(8081), 0);
+		try {
+      InetSocketAddress a = new InetSocketAddress("localhost", 8081);
 
-      ThreadPoolExecutor exec = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+			HttpServer server = HttpServer.create(a, 0);
+			ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+			
+			registerContext(server);
+			server.setExecutor(threadPoolExecutor);
+			server.start();
+			System.out.println("Starting server at " + a.getHostName() + ":" + a.getPort());
 
-      registerContexts(s);
-      s.setExecutor(exec);
-      s.start();
-
-      
-      log("Starting server");
-    } catch (IOException e) {
-      log("Failed to start server");
-      e.printStackTrace();
-    }
-  }
-
+		} catch (IOException e) {
+			System.out.println("Failed to initialize server");
+			e.printStackTrace();
+		}
+	}
 }
