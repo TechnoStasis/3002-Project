@@ -1,4 +1,4 @@
-package main.context;
+package main.page;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,18 +9,20 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.sun.net.httpserver.HttpExchange;
+
+import main.TestManager;
 import main.UserManager;
 
-public class LoginHandler extends AbstractPageHandler {
+public class LoginPage extends AbstractPageHandler {
 
   String htmlPage;
   String htmlErrorPage;
 
-  public LoginHandler() {
+  public LoginPage() {
     StringBuilder contentBuilder = new StringBuilder();
     try {
       BufferedReader in = new BufferedReader(
-          new FileReader("/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/context/login.html"));
+          new FileReader(TestManager.TEMPLATE_PATH + "login.html"));
       String str;
       while ((str = in.readLine()) != null) {
         contentBuilder.append(str);
@@ -34,7 +36,7 @@ public class LoginHandler extends AbstractPageHandler {
     StringBuilder contentBuilder2 = new StringBuilder();
     try {
       BufferedReader in = new BufferedReader(
-          new FileReader("/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/context/loginerror.html"));
+          new FileReader(TestManager.TEMPLATE_PATH + "loginerror.html"));
       String str;
       while ((str = in.readLine()) != null) {
         contentBuilder2.append(str);
@@ -68,11 +70,11 @@ public class LoginHandler extends AbstractPageHandler {
 
     if (UserManager.INSTANCE.getUser(username, password) != null) {
       ArrayList<String> cookies = new ArrayList<String>();
-      cookies.add("user=" + username + "|" + password);
+      cookies.add("user=" + username + ":" + password);
       t.getResponseHeaders().put("Set-Cookie", cookies);
-      cookies.clear();
-      cookies.add("home");
-      t.getResponseHeaders().put("Location", cookies);
+      ArrayList<String> redirect = new ArrayList<String>();
+      redirect.add("profile");
+      t.getResponseHeaders().put("Location", redirect);
       t.sendResponseHeaders(302, -1);
       t.close();
     } else {

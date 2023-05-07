@@ -7,21 +7,25 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import com.sun.net.httpserver.HttpServer;
 
-import main.context.LoginHandler;
+import main.page.LoginPage;
+import main.page.ProfilePage;
 
 public class TestManager {
 
-  private static void registerContext(HttpServer s) {
-    s.createContext("/login", new LoginHandler());
-  }
+	public static final String TEMPLATE_PATH = "/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/page/html/";
 
-  public static void main(String[] args) {
+	private static void registerContext(HttpServer s) {
+		s.createContext("/login", new LoginPage());
+		s.createContext("/profile", new ProfilePage());
+	}
+
+	public static void main(String[] args) {
 		try {
-      InetSocketAddress a = new InetSocketAddress("localhost", 8081);
+			InetSocketAddress a = new InetSocketAddress("localhost", 8081);
 
 			HttpServer server = HttpServer.create(a, 0);
 			ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-			
+
 			registerContext(server);
 			server.setExecutor(threadPoolExecutor);
 			server.start();
