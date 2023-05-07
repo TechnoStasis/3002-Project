@@ -9,11 +9,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-
 import main.UserManager;
 
-public class LoginHandler implements HttpHandler {
+public class LoginHandler extends AbstractPageHandler {
 
   String htmlPage;
   String htmlErrorPage;
@@ -47,47 +45,42 @@ public class LoginHandler implements HttpHandler {
     }
     htmlErrorPage = contentBuilder2.toString();
   }
+  
+  @Override
+  public void handleGet(HttpExchange t) throws IOException {
+    String response = htmlPage;
+    t.sendResponseHeaders(200, response.length());
+    OutputStream os = t.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
 
   @Override
-  public void handle(HttpExchange t) throws IOException {
-    String request = t.getRequestMethod();
-    if (request.equals("GET")) {
-      String response = htmlPage;
+  public void handlePost(HttpExchange t) throws IOException {
+    InputStream io = t.getRequestBody();
+    InputStreamReader inputStreamReader = new InputStreamReader(io);
+    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+    String req = bufferedReader.readLine();
+    String[] details = req.split("&");
+
+    String username = details[0].split("=")[1];
+    String password = details[1].split("=")[1];
+
+    if (UserManager.INSTANCE.getUser(username, password) != null) {
+      ArrayList<String> cookies = new ArrayList<String>();
+      cookies.add("user=" + username + "|" + password);
+      t.getResponseHeaders().put("Set-Cookie", cookies);
+      cookies.clear();
+      cookies.add("home");
+      t.getResponseHeaders().put("Location", cookies);
+      t.sendResponseHeaders(302, -1);
+      t.close();
+    } else {
+      String response = htmlErrorPage;
       t.sendResponseHeaders(200, response.length());
       OutputStream os = t.getResponseBody();
       os.write(response.getBytes());
       os.close();
-    }
-
-    if (request.equals("POST")) {
-      InputStream io = t.getRequestBody();
-      InputStreamReader inputStreamReader = new InputStreamReader(io);
-      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-      String req = bufferedReader.readLine();
-      String[] details = req.split("&");
-
-      String username = details[0].split("=")[1];
-      String password = details[1].split("=")[1];
-
-      // System.out.println("username: " + username);
-      // System.out.println("password: " + password);
-
-      if (UserManager.INSTANCE.getUser(username, password) != null) {
-        ArrayList<String> cookies = new ArrayList<String>();
-        cookies.add("user=" + username + "|" + password);
-        t.getResponseHeaders().put("Set-Cookie", cookies);
-        cookies.clear();
-        cookies.add("home");
-        t.getResponseHeaders().put("Location", cookies);
-        t.sendResponseHeaders(302, -1);
-        t.close();
-      } else {
-        String response = htmlErrorPage;
-        t.sendResponseHeaders(200, response.length());
-        OutputStream os = t.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
-      }
     }
   }
 }

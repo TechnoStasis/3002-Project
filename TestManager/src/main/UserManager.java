@@ -23,6 +23,11 @@ public class UserManager {
 
     }
 
+    private void writeUser(User user)
+    {
+        
+    }
+
     public User getUser(String username, String password) {
         if (userMap.get(username + "|" + password) != null)
             return userMap.get(username + "|" + password);
