@@ -16,16 +16,15 @@ public class UserManager {
     private UserManager(String file) {
         userPath = file;
 
-        userMap.put("admin|admin", new User("admin", "admin"));    
+        userMap.put("admin|admin", new User("admin", "admin"));
     }
 
     private void readUsers() {
 
     }
 
-    private void writeUser(User user)
-    {
-        
+    private void writeUser(User user) {
+
     }
 
     public User getUser(String username, String password) {

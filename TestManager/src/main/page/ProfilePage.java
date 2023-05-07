@@ -3,9 +3,11 @@ package main.page;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import main.HtmlRenderer;
 import main.TestManager;
 
 public class ProfilePage extends AbstractPageHandler {
@@ -38,7 +40,10 @@ public class ProfilePage extends AbstractPageHandler {
       }
     }
 
-    String htmlPage = this.htmlPage.replace("{{username}}", user);
+    HashMap<String, Object> dataToHTML = new HashMap<String, Object>();
+    dataToHTML.put("username", user);
+
+    String htmlPage = HtmlRenderer.render(this.htmlPage, dataToHTML);
     t.sendResponseHeaders(200, htmlPage.length());
     t.getResponseBody().write(htmlPage.getBytes());
     t.getResponseBody().close();
@@ -46,7 +51,7 @@ public class ProfilePage extends AbstractPageHandler {
 
   @Override
   public void handlePost(HttpExchange t) throws IOException {
-    // TODO Auto-generated method stub
+    
     throw new UnsupportedOperationException("Unimplemented method 'handlePost'");
   }
 
