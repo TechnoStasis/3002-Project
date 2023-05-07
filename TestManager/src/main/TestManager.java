@@ -7,12 +7,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import com.sun.net.httpserver.HttpServer;
 
-import main.context.HomeHandler;
+import main.context.LoginHandler;
 
 public class TestManager {
 
   private static void registerContext(HttpServer s) {
-    s.createContext("/", new HomeHandler());
+    s.createContext("/login", new LoginHandler());
   }
 
   public static void main(String[] args) {
