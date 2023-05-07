@@ -6,13 +6,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import main.UserManager;
+
 public class LoginHandler implements HttpHandler {
 
   String htmlPage;
+  String htmlErrorPage;
 
   public LoginHandler() {
     StringBuilder contentBuilder = new StringBuilder();
@@ -28,6 +32,20 @@ public class LoginHandler implements HttpHandler {
       e.printStackTrace();
     }
     htmlPage = contentBuilder.toString();
+
+    StringBuilder contentBuilder2 = new StringBuilder();
+    try {
+      BufferedReader in = new BufferedReader(
+          new FileReader("/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/context/loginerror.html"));
+      String str;
+      while ((str = in.readLine()) != null) {
+        contentBuilder2.append(str);
+      }
+      in.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    htmlErrorPage = contentBuilder2.toString();
   }
 
   @Override
@@ -48,8 +66,28 @@ public class LoginHandler implements HttpHandler {
       String req = bufferedReader.readLine();
       String[] details = req.split("&");
 
-      System.out.println("username: " + details[0].split("=")[1]);
-      System.out.println("password: " + details[1].split("=")[1]);
+      String username = details[0].split("=")[1];
+      String password = details[1].split("=")[1];
+
+      // System.out.println("username: " + username);
+      // System.out.println("password: " + password);
+
+      if (UserManager.INSTANCE.getUser(username, password) != null) {
+        ArrayList<String> cookies = new ArrayList<String>();
+        cookies.add("user=" + username + "|" + password);
+        t.getResponseHeaders().put("Set-Cookie", cookies);
+        cookies.clear();
+        cookies.add("home");
+        t.getResponseHeaders().put("Location", cookies);
+        t.sendResponseHeaders(302, -1);
+        t.close();
+      } else {
+        String response = htmlErrorPage;
+        t.sendResponseHeaders(200, response.length());
+        OutputStream os = t.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+      }
     }
   }
 }
