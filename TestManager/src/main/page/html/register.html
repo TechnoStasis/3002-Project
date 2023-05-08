@@ -1,0 +1,32 @@
+<html>
+
+<head>
+  <style>
+    * {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+  </style>
+
+  <title>Register</title>
+</head>
+
+<form action="register" method="post">
+  <div class="container">
+    <p>
+      <label for="username"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" required>
+    </p>
+    <p>
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+    </p>
+    <label for="confirm_password"><b>Confirm Password</b></label>
+    <input type="password" placeholder="Confirm Password" name="confirm_password" required>
+    <p>{{error}}</p>
+    <p>
+      <button type="submit">Register</button>
+    </p>
+  </div>
+</form>
+
+</html>
