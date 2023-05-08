@@ -1,7 +1,6 @@
 package main.page;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.TestManager;
+import main.HtmlRenderer;
 import main.UserManager;
 
 public class LoginPage extends AbstractPageHandler {
@@ -19,33 +18,8 @@ public class LoginPage extends AbstractPageHandler {
   String htmlErrorPage;
 
   public LoginPage() {
-    StringBuilder contentBuilder = new StringBuilder();
-    try {
-      BufferedReader in = new BufferedReader(
-          new FileReader(TestManager.TEMPLATE_PATH + "login.html"));
-      String str;
-      while ((str = in.readLine()) != null) {
-        contentBuilder.append(str);
-      }
-      in.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    htmlPage = contentBuilder.toString();
-
-    StringBuilder contentBuilder2 = new StringBuilder();
-    try {
-      BufferedReader in = new BufferedReader(
-          new FileReader(TestManager.TEMPLATE_PATH + "loginerror.html"));
-      String str;
-      while ((str = in.readLine()) != null) {
-        contentBuilder2.append(str);
-      }
-      in.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    htmlErrorPage = contentBuilder2.toString();
+    htmlPage = HtmlRenderer.readHTML("login.html");
+    htmlErrorPage = HtmlRenderer.readHTML("loginerror.html");
   }
   
   @Override

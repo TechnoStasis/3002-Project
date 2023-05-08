@@ -32,7 +32,6 @@ public class UserManager {
 
                 User user = new User(username, password);
                 userMap.put(user.toString(), user);
-                System.out.println(user.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();

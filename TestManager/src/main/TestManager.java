@@ -16,6 +16,7 @@ public class TestManager {
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
+	//	s.createContext("/register", new RegisterPage());
 		s.createContext("/profile", new ProfilePage());
 	}
 
