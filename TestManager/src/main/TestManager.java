@@ -16,8 +16,6 @@ import main.page.RegisterPage;
 
 public class TestManager {
 
-	public static final String TEMPLATE_PATH = "/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/page/html/";
-
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
 		s.createContext("/logout", new AbstractPageHandler() {

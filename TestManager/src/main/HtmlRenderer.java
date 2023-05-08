@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class HtmlRenderer {
 
+	public static final String TEMPLATE_PATH = "/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/page/html/";
+    
     public static final String render(String html, HashMap<String, Object> map) {
         String htmlRender = html;
         if (map != null && !map.isEmpty())
@@ -25,7 +27,7 @@ public class HtmlRenderer {
         StringBuilder contentBuilder = new StringBuilder();
         try {
             BufferedReader in = new BufferedReader(
-                    new FileReader(TestManager.TEMPLATE_PATH + path));
+                    new FileReader(TEMPLATE_PATH + path));
             String str;
             while ((str = in.readLine()) != null) {
                 contentBuilder.append(str);
