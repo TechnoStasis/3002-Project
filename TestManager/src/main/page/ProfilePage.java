@@ -10,6 +10,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import main.HtmlRenderer;
 import main.TestManager;
+import main.UserManager;
 
 public class ProfilePage extends AbstractPageHandler {
 
@@ -34,15 +35,23 @@ public class ProfilePage extends AbstractPageHandler {
   @Override
   public void handleGet(HttpExchange t) throws IOException {
     String user = "";
+    String password = "";
     if (t.getRequestHeaders().get("Cookie") != null) {
       for (String str : t.getRequestHeaders().get("Cookie")) {
-        user = str.split("=")[1];
-        user = user.split(":")[0];
+        user = str.split("=")[1].split(":")[0];
+        password = str.split("=")[1].split(":")[1];
       }
     }
 
-    if(user.isEmpty())
-    {
+    if (!UserManager.INSTANCE.validate(user, password)) {
+      ArrayList<String> redirect = new ArrayList<>();
+      redirect.add("logout");
+      t.getResponseHeaders().put("Location", redirect);
+      t.sendResponseHeaders(302, -1);
+      t.close();
+    }
+
+    if (user.isEmpty()) {
       ArrayList<String> redirect = new ArrayList<>();
       redirect.add("login");
       t.getResponseHeaders().put("Location", redirect);
@@ -61,7 +70,7 @@ public class ProfilePage extends AbstractPageHandler {
 
   @Override
   public void handlePost(HttpExchange t) throws IOException {
-    
+
     throw new UnsupportedOperationException("Unimplemented method 'handlePost'");
   }
 

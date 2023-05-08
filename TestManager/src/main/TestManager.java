@@ -32,6 +32,8 @@ public class TestManager {
 					}
 				}
 				t.getResponseHeaders().put("Set-Cookie", cookies);
+
+				
 				ArrayList<String> redirect = new ArrayList<String>();
 				redirect.add("login");
 				t.getResponseHeaders().put("Location", redirect);

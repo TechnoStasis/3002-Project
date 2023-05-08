@@ -52,4 +52,10 @@ public class UserManager {
         else
             return null;
     }
+
+    public boolean validate(String user, String password) {
+        if (userMap.get(user + ":" + password) != null)
+            return userMap.get(user + ":" + password).toString().equals(user + ":" + password);
+        return false;
+    }
 }
