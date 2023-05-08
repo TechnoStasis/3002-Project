@@ -3,6 +3,7 @@ package main.page;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -38,6 +39,15 @@ public class ProfilePage extends AbstractPageHandler {
         user = str.split("=")[1];
         user = user.split(":")[0];
       }
+    }
+
+    if(user.isEmpty())
+    {
+      ArrayList<String> redirect = new ArrayList<>();
+      redirect.add("login");
+      t.getResponseHeaders().put("Location", redirect);
+      t.sendResponseHeaders(302, -1);
+      t.close();
     }
 
     HashMap<String, Object> dataToHTML = new HashMap<String, Object>();

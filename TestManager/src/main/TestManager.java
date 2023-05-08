@@ -2,13 +2,17 @@ package main;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+import main.page.AbstractPageHandler;
 import main.page.LoginPage;
 import main.page.ProfilePage;
+import main.page.RegisterPage;
 
 public class TestManager {
 
@@ -16,7 +20,31 @@ public class TestManager {
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
-	//	s.createContext("/register", new RegisterPage());
+		s.createContext("/logout", new AbstractPageHandler() {
+
+			@Override
+			public void handleGet(HttpExchange t) throws IOException {
+
+				ArrayList<String> cookies = new ArrayList<>();
+				if (t.getRequestHeaders().get("Cookie") != null) {
+					for (String str : t.getRequestHeaders().get("Cookie")) {
+					  cookies.add(str + "; Max-Age=-1");
+					}
+				}
+				t.getResponseHeaders().put("Set-Cookie", cookies);
+				ArrayList<String> redirect = new ArrayList<String>();
+				redirect.add("login");
+				t.getResponseHeaders().put("Location", redirect);
+				t.sendResponseHeaders(302, -1);
+				t.close();
+			}
+
+			@Override
+			public void handlePost(HttpExchange t) throws IOException {
+			}
+
+		});
+		s.createContext("/register", new RegisterPage());
 		s.createContext("/profile", new ProfilePage());
 	}
 
