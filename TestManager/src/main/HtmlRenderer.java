@@ -10,12 +10,13 @@ public class HtmlRenderer {
 
     public static final String render(String html, HashMap<String, Object> map) {
         String htmlRender = html;
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = entry.getKey();
-            String val = entry.getValue().toString();
+        if (map != null && !map.isEmpty())
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String key = entry.getKey();
+                String val = entry.getValue().toString();
 
-            htmlRender = htmlRender.replace("{{" + key + "}}", val);
-        }
+                htmlRender = htmlRender.replace("{{" + key + "}}", val);
+            }
         return htmlRender;
     }
 
@@ -35,5 +36,10 @@ public class HtmlRenderer {
         }
         htmlPage = contentBuilder.toString();
         return htmlPage;
+    }
+
+    public static final String appendError(String line)
+    {
+        return "<FONT COLOR=\"RED\">" + line + "</FONT>";
     }
 }

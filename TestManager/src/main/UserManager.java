@@ -32,7 +32,7 @@ public class UserManager {
                 String password = str.split(":")[1];
 
                 User user = new User(username, password);
-                userMap.put(user.toString(), user);
+                userMap.put(username, user);
             }
             in.close();
         } catch (Exception e) {
@@ -44,8 +44,7 @@ public class UserManager {
         try {
             FileWriter file = new FileWriter(userPath);
             for (Map.Entry<String, User> entry : userMap.entrySet()) {
-                file.write(entry.getKey() + '\n');
-                System.out.println(entry.getKey());
+                file.write(entry.getValue().toString() + '\n');
             }
             file.close();
         } catch (IOException e) {
@@ -54,12 +53,12 @@ public class UserManager {
     }
 
     public void addUser(User user) {
-        userMap.put(user.toString(), user);
+        userMap.put(user.getUsername(), user);
     }
 
-    public User getUser(String username, String password) {
-        if (userMap.get(username + ":" + password) != null)
-            return userMap.get(username + ":" + password);
+    public User getUser(String username) {
+        if (userMap.get(username) != null)
+            return userMap.get(username);
         else
             return null;
     }
@@ -69,9 +68,9 @@ public class UserManager {
         saveUsers();
     }
 
-    public boolean validate(String user, String password) {
-        if (userMap.get(user + ":" + password) != null)
-            return userMap.get(user + ":" + password).toString().equals(user + ":" + password);
+    public boolean validate(String username, String password) {
+        if (getUser(username) != null)
+            return getUser(username).getPassword().equals(password);
         return false;
     }
 }

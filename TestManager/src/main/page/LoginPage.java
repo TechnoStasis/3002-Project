@@ -42,7 +42,7 @@ public class LoginPage extends AbstractPageHandler {
     String username = details[0].split("=")[1];
     String password = details[1].split("=")[1];
 
-    if (UserManager.INSTANCE.getUser(username, password) != null) {
+    if (UserManager.INSTANCE.validate(username, password)) {
       ArrayList<String> cookies = new ArrayList<String>();
       cookies.add("user=" + username + ":" + password);
       t.getResponseHeaders().put("Set-Cookie", cookies);
