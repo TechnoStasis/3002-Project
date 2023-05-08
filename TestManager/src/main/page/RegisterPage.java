@@ -12,10 +12,9 @@ import main.HtmlRenderer;
 
 public class RegisterPage extends AbstractPageHandler {
 
-
     String htmlPage;
-    public RegisterPage()
-    {
+
+    public RegisterPage() {
         htmlPage = HtmlRenderer.readHTML("register.html");
     }
 
@@ -29,14 +28,20 @@ public class RegisterPage extends AbstractPageHandler {
 
     @Override
     public void handlePost(HttpExchange t) throws IOException {
-        
+
         InputStream io = t.getRequestBody();
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String req = bufferedReader.readLine();
         String[] details = req.split("&");
 
-        
+        String username = details[0].split("=")[1];
+        String password = details[1].split("=")[1];
+        String confirm = details[2].split("=")[1];
+
+        System.out.println(username);
+        System.out.println(password);
+        System.out.println(confirm);
     }
-    
+
 }

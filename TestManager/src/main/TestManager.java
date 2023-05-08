@@ -28,12 +28,11 @@ public class TestManager {
 				ArrayList<String> cookies = new ArrayList<>();
 				if (t.getRequestHeaders().get("Cookie") != null) {
 					for (String str : t.getRequestHeaders().get("Cookie")) {
-					  cookies.add(str + "; Max-Age=-1");
+						cookies.add(str + "; Max-Age=-1");
 					}
 				}
 				t.getResponseHeaders().put("Set-Cookie", cookies);
 
-				
 				ArrayList<String> redirect = new ArrayList<String>();
 				redirect.add("login");
 				t.getResponseHeaders().put("Location", redirect);
@@ -62,7 +61,7 @@ public class TestManager {
 			server.start();
 			System.out.println("Starting server at " + a.getHostName() + ":" + a.getPort());
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.out.println("Failed to initialize server");
 			e.printStackTrace();
 		}

@@ -2,7 +2,10 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import users.User;
 
@@ -21,10 +24,8 @@ public class UserManager {
     }
 
     private void readUsers() {
-        BufferedReader in;
-
         try {
-            in = new BufferedReader(new FileReader(userPath));
+            BufferedReader in = new BufferedReader(new FileReader(userPath));
             String str;
             while ((str = in.readLine()) != null) {
                 String username = str.split(":")[0];
@@ -33,13 +34,24 @@ public class UserManager {
                 User user = new User(username, password);
                 userMap.put(user.toString(), user);
             }
+            in.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void saveUsers() {
-
+        try {
+            FileWriter file = new FileWriter(userPath);
+            for (Map.Entry<String, User> entry : userMap.entrySet()) {
+                file.write(entry.getKey() + '\n');
+                System.out.println(entry.getKey());
+            }
+            file.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public void addUser(User user) {
@@ -51,6 +63,11 @@ public class UserManager {
             return userMap.get(username + ":" + password);
         else
             return null;
+    }
+
+    public void registerUser(User user) {
+        addUser(user);
+        saveUsers();
     }
 
     public boolean validate(String user, String password) {
