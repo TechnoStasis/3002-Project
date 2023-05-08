@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
@@ -15,19 +16,18 @@ import main.UserManager;
 public class LoginPage extends AbstractPageHandler {
 
   String htmlPage;
-  String htmlErrorPage;
-
   public LoginPage() {
     htmlPage = HtmlRenderer.readHTML("login.html");
-    htmlErrorPage = HtmlRenderer.readHTML("loginerror.html");
   }
   
   @Override
   public void handleGet(HttpExchange t) throws IOException {
-    String response = htmlPage;
-    t.sendResponseHeaders(200, response.length());
+    HashMap<String, Object> hiddenError = new HashMap<>();
+    hiddenError.put("error", "");
+    String htmlPage = HtmlRenderer.render(this.htmlPage, hiddenError);
+    t.sendResponseHeaders(200, htmlPage.length());
     OutputStream os = t.getResponseBody();
-    os.write(response.getBytes());
+    os.write(htmlPage.getBytes());
     os.close();
   }
 
@@ -52,10 +52,12 @@ public class LoginPage extends AbstractPageHandler {
       t.sendResponseHeaders(302, -1);
       t.close();
     } else {
-      String response = htmlErrorPage;
-      t.sendResponseHeaders(200, response.length());
+      HashMap<String, Object> hiddenError = new HashMap<>();
+      hiddenError.put("error", HtmlRenderer.appendError("Wrong username or password!"));
+      String htmlPage = HtmlRenderer.render(this.htmlPage, hiddenError);
+      t.sendResponseHeaders(200, htmlPage.length());
       OutputStream os = t.getResponseBody();
-      os.write(response.getBytes());
+      os.write(htmlPage.getBytes());
       os.close();
     }
   }
