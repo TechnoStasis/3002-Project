@@ -21,6 +21,7 @@ public class ProfilePage extends AbstractPageHandler {
   public void handleGet(HttpExchange t) throws IOException {
     String user = "";
     String password = "";
+    ArrayList<String> redirect = new ArrayList<>();
     if (t.getRequestHeaders().get("Cookie") != null) {
       for (String str : t.getRequestHeaders().get("Cookie")) {
         user = str.split("=")[1].split(":")[0];
@@ -29,7 +30,6 @@ public class ProfilePage extends AbstractPageHandler {
     }
 
     if (!UserManager.INSTANCE.validate(user, password)) {
-      ArrayList<String> redirect = new ArrayList<>();
       redirect.add("logout");
       t.getResponseHeaders().put("Location", redirect);
       t.sendResponseHeaders(302, -1);
@@ -37,7 +37,6 @@ public class ProfilePage extends AbstractPageHandler {
     }
 
     if (user.isEmpty()) {
-      ArrayList<String> redirect = new ArrayList<>();
       redirect.add("login");
       t.getResponseHeaders().put("Location", redirect);
       t.sendResponseHeaders(302, -1);
@@ -55,8 +54,6 @@ public class ProfilePage extends AbstractPageHandler {
 
   @Override
   public void handlePost(HttpExchange t) throws IOException {
-
-    throw new UnsupportedOperationException("Unimplemented method 'handlePost'");
   }
 
 }
