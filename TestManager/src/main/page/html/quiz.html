@@ -1,0 +1,40 @@
+<html>
+
+<head>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .question {
+            border: 1px outset gray;
+            background-color: darkgray;
+            text-align: left;
+        }
+    </style>
+
+
+    <title>Quizzes</title>
+
+</head>
+
+<form action="" method="post">
+    <div class="quizContainer">
+
+        <div class="question">
+            <p> {{question}} </p>
+        </div>
+
+        <p>
+            <label for="answer">Answer</label>
+        </p>
+        <textarea id="answer" name="answer" rows="10" cols="50">
+         </textarea>
+
+    </div>
+    <p>
+        <button type="submit">Register</button>
+    </p>
+</form>
+
+</html>

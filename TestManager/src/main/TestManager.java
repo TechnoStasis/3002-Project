@@ -12,6 +12,7 @@ import com.sun.net.httpserver.HttpServer;
 import main.page.AbstractPageHandler;
 import main.page.LoginPage;
 import main.page.ProfilePage;
+import main.page.QuizPage;
 import main.page.RegisterPage;
 
 public class TestManager {
@@ -44,7 +45,9 @@ public class TestManager {
 
 		});
 		s.createContext("/register", new RegisterPage());
+
 		s.createContext("/profile", new ProfilePage());
+		s.createContext("/quiz", new QuizPage());
 	}
 
 	public static void main(String[] args) {
