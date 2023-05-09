@@ -31,7 +31,7 @@ public class QuizPage extends AbstractPageHandler {
         InputStream io = t.getRequestBody();
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String req = bufferedReader.readLine();
+        String req = bufferedReader.readLine().replace("+", " ");
         String[] details = req.split("&");
 
         System.out.println(req);
