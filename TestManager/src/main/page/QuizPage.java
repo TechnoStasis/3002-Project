@@ -42,21 +42,21 @@ public class QuizPage extends AbstractPageHandler {
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
 
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
-
-        int attempts = q.getNumberOfAttempts(Integer.parseInt(currentQuestion));
+        int cQ = Integer.parseInt(currentQuestion);
+        int attempts = q.getNumberOfAttempts(cQ);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
 
-        data.put("button", attempts > 0 ? HtmlRenderer.createButton("Submit") : "No More Attempts");
+        data.put("button",
+                attempts > 0 ? HtmlRenderer.createButton("Submit") : HtmlRenderer.appendError("No More Attempts"));
 
         String htmlPage = HtmlRenderer.render(this.htmlPage, data);
 
         t.sendResponseHeaders(200, htmlPage.length());
         t.getResponseBody().write(htmlPage.getBytes());
         t.getResponseBody().close();
-
     }
 
     @Override
@@ -86,6 +86,8 @@ public class QuizPage extends AbstractPageHandler {
         int currQ = Integer.parseInt(currentQuestion);
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
 
+        // QUIZ BANK COMMUNICATION
+
         int attempts = q.getNumberOfAttempts(currQ);
 
         q.setNumberOfAttempts(currQ, attempts - 1);
@@ -97,5 +99,4 @@ public class QuizPage extends AbstractPageHandler {
         t.sendResponseHeaders(302, -1);
         t.close();
     }
-
 }
