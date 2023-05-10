@@ -69,6 +69,14 @@ public class Quiz {
         return this.file.getName().replace(".txt", "");
     }
 
+    public int totalMarks() {
+        int marks = 0;
+        for (int i = 0; i < questions.length; i++)
+            if (questions[i].correct)
+                marks = marks + questions[i].attemptsLeft;
+        return marks;
+    }
+
     class Question {
         int attemptsLeft;
         boolean correct;
@@ -82,6 +90,10 @@ public class Quiz {
         public String toString() {
             return "{attempts remaining: " + attemptsLeft + ", correctness: " + correct + "}";
         }
+    }
+
+    public String getType() {
+        return type;
     }
 
 }

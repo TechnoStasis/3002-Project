@@ -11,9 +11,12 @@ public class HtmlRenderer {
     public static final String TEMPLATE_PATH = "/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/page/html/";
 
     /**
-     * A way to assign dynamic elements in HTML without futzing about the actual HTML file
+     * A way to assign dynamic elements in HTML without futzing about the actual
+     * HTML file
      * 
-     * Implementation is faintly inspired by JINJA formatting, but it not the full implementation, too much work
+     * Implementation is faintly inspired by JINJA formatting, but it not the full
+     * implementation, too much work
+     * 
      * @param html
      * @param map
      * @return
@@ -33,6 +36,7 @@ public class HtmlRenderer {
     /**
      * 
      * Reads an html file as a text file, converting it to a String object
+     * 
      * @param path
      * @return
      */
@@ -54,10 +58,14 @@ public class HtmlRenderer {
         return htmlPage;
     }
 
-    /** 
+    /**
      * Appends font color tags to a string
      */
     public static final String appendError(String line) {
         return "<FONT COLOR=\"RED\">" + line + "</FONT>";
+    }
+
+    public static final String createButton(String name) {
+        return "<button type=\"submit\">" + name + "</button>";
     }
 }

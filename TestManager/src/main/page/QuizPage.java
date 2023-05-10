@@ -50,6 +50,8 @@ public class QuizPage extends AbstractPageHandler {
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
 
+        data.put("button", attempts > 0 ? HtmlRenderer.createButton("Submit") : "No More Attempts");
+
         String htmlPage = HtmlRenderer.render(this.htmlPage, data);
 
         t.sendResponseHeaders(200, htmlPage.length());
