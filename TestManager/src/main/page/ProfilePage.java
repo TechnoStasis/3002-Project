@@ -7,6 +7,7 @@ import java.util.HashMap;
 import com.sun.net.httpserver.HttpExchange;
 
 import main.HtmlRenderer;
+import main.QuizManager;
 import main.UserManager;
 
 public class ProfilePage extends AbstractPageHandler {
@@ -54,6 +55,16 @@ public class ProfilePage extends AbstractPageHandler {
 
   @Override
   public void handlePost(HttpExchange t) throws IOException {
+    String user = "";
+    String password = "";
+    ArrayList<String> redirect = new ArrayList<>();
+    if (t.getRequestHeaders().get("Cookie") != null) {
+      for (String str : t.getRequestHeaders().get("Cookie")) {
+        user = str.split("=")[1].split(":")[0];
+        password = str.split("=")[1].split(":")[1];
+      }
+    }
+    QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
   }
 
 }
