@@ -17,6 +17,8 @@ import main.page.RegisterPage;
 
 public class TestManager {
 
+	public static final String jarPath = TestManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
 		s.createContext("/logout", new AbstractPageHandler() {
@@ -51,6 +53,7 @@ public class TestManager {
 	}
 
 	public static void main(String[] args) {
+
 		try {
 			InetSocketAddress a = new InetSocketAddress("localhost", 8081);
 

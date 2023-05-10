@@ -26,16 +26,13 @@ public class QuizPage extends AbstractPageHandler {
     @Override
     public void handleGet(HttpExchange t) throws IOException {
         String user = "";
-        String password = "";
-        ArrayList<String> redirect = new ArrayList<>();
         if (t.getRequestHeaders().get("Cookie") != null) {
             for (String str : t.getRequestHeaders().get("Cookie")) {
                 user = str.split("=")[1].split(":")[0];
-                password = str.split("=")[1].split(":")[1];
             }
         }
 
-       QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
+        QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
 
         if (!t.getRequestURI().toASCIIString().contains("?=")) {
             ArrayList<String> redir = new ArrayList<>();

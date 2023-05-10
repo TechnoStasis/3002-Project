@@ -17,7 +17,7 @@ import users.User;
 public class QuizManager {
 
     public static final QuizManager INSTANCE = new QuizManager(
-            "/Users/yvesreyes/Documents/3002-Project/TestManager/assets/quiz/");
+            TestManager.jarPath + "assets/quiz/");
 
     private final String quizPath;
 
