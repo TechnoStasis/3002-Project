@@ -13,8 +13,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import main.quiz.Quiz;
 import users.User;
@@ -22,7 +20,7 @@ import users.User;
 public class QuizManager {
 
     public static final QuizManager INSTANCE = new QuizManager(
-            TestManager.jarPath + "assets/quiz/");
+            TestManager.MASTER_PATH + "assets/quiz/");
 
     private final String quizPath;
 

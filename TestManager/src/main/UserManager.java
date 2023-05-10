@@ -14,7 +14,7 @@ import users.User;
 public class UserManager {
 
     public static final UserManager INSTANCE = new UserManager(
-            TestManager.jarPath + "assets/users/users.txt");
+            TestManager.MASTER_PATH + "assets/users/users.txt");
 
     private final String userPath;
 

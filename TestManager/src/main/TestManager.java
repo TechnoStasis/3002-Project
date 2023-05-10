@@ -17,7 +17,7 @@ import main.page.RegisterPage;
 
 public class TestManager {
 
-	public static final String jarPath = TestManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	public static final String MASTER_PATH = TestManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
