@@ -1,6 +1,8 @@
 package main;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +14,7 @@ import users.User;
 public class UserManager {
 
     public static final UserManager INSTANCE = new UserManager(
-            "/Users/yvesreyes/Documents/3002-Project/TestManager/src/users/users.txt");
+            "/Users/yvesreyes/Documents/3002-Project/TestManager/assets/users/users.txt");
 
     private final String userPath;
 
@@ -33,15 +35,24 @@ public class UserManager {
 
                 User user = new User(username, password);
                 userMap.put(username, user);
+                QuizManager.INSTANCE.createUserQuizPath(user);
             }
             in.close();
         } catch (Exception e) {
+            if (e instanceof FileNotFoundException)
+                System.out.println("Users database not found!");
+
             e.printStackTrace();
         }
     }
 
     public void saveUsers() {
         try {
+            File f = new File(userPath);
+            if (!f.exists()) {
+                f.getParentFile().mkdirs();
+                f.createNewFile();
+            }
             FileWriter file = new FileWriter(userPath);
             for (Map.Entry<String, User> entry : userMap.entrySet()) {
                 file.write(entry.getValue().toString() + '\n');
@@ -65,6 +76,7 @@ public class UserManager {
 
     public void registerUser(User user) {
         addUser(user);
+        QuizManager.INSTANCE.createUserQuizPath(user);
         saveUsers();
     }
 
