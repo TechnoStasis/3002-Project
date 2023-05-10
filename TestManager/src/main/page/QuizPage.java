@@ -1,7 +1,6 @@
 package main.page;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -91,8 +90,11 @@ public class QuizPage extends AbstractPageHandler {
 
         q.setNumberOfAttempts(currQ, attempts - 1);
         q.save();
-        
-        t.sendResponseHeaders(200, -1);
+
+        ArrayList<String> redirect = new ArrayList<>();
+        redirect.add(t.getRequestURI().toString());
+        t.getResponseHeaders().put("Location", redirect);
+        t.sendResponseHeaders(302, -1);
         t.close();
     }
 
