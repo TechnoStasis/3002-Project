@@ -32,8 +32,6 @@ public class QuizPage extends AbstractPageHandler {
             }
         }
 
-        QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
-
         if (!t.getRequestURI().toASCIIString().contains("?=")) {
             ArrayList<String> redir = new ArrayList<>();
             redir.add("quiz?=1");
@@ -44,8 +42,13 @@ public class QuizPage extends AbstractPageHandler {
 
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
 
+        Quiz q = QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
+
+        int attempts = q.getNumberOfAttempts(Integer.parseInt(currentQuestion));
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
+        data.put("attempts", attempts + "");
 
         String htmlPage = HtmlRenderer.render(this.htmlPage, data);
 
@@ -63,6 +66,32 @@ public class QuizPage extends AbstractPageHandler {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String answer = bufferedReader.readLine().replace("+", " ");
 
+        String user = "";
+        if (t.getRequestHeaders().get("Cookie") != null) {
+            for (String str : t.getRequestHeaders().get("Cookie")) {
+                user = str.split("=")[1].split(":")[0];
+            }
+        }
+
+        if (!t.getRequestURI().toASCIIString().contains("?=")) {
+            ArrayList<String> redir = new ArrayList<>();
+            redir.add("quiz?=1");
+            t.getResponseHeaders().put("Location", redir);
+            t.sendResponseHeaders(302, -1);
+            t.close();
+        }
+
+        String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
+        int currQ = Integer.parseInt(currentQuestion);
+        Quiz q = QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
+
+        int attempts = q.getNumberOfAttempts(currQ);
+
+        q.setNumberOfAttempts(currQ, attempts - 1);
+        q.save();
+        
+        t.sendResponseHeaders(200, -1);
+        t.close();
     }
 
 }

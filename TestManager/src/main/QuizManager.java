@@ -6,10 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import main.quiz.Quiz;
 import users.User;
@@ -20,6 +25,8 @@ public class QuizManager {
             TestManager.jarPath + "assets/quiz/");
 
     private final String quizPath;
+
+    private HashMap<String, Quiz> userquiz = new HashMap<>();
 
     public QuizManager(String string) {
         quizPath = string;
@@ -91,7 +98,25 @@ public class QuizManager {
         return null;
     }
 
-    public Quiz getCurrentQuiz(User user) throws FileNotFoundException, IOException{
-        return new Quiz(getCurrentUserQuizFile(user));
+    public Quiz getCurrentQuiz(User user) throws FileNotFoundException, IOException {
+        if (userquiz.get(user.getUsername()) != null)
+            return userquiz.get(user.getUsername());
+        else {
+            userquiz.put(user.getUsername(), new Quiz(getCurrentUserQuizFile(user)));
+            return userquiz.get(user.getUsername());
+        }
+    }
+
+    public ArrayList<Quiz> getPastQuizzes(User user) throws IOException {
+        ArrayList<Quiz> pastQuizzes = new ArrayList<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(getUserQuizPath(user)))) {
+            for (Path path : stream) {
+                if (!Files.isDirectory(path) && !path.toString().contains("index.txt")) {
+                  pastQuizzes.add(new Quiz(path.toFile()));
+                }
+            }
+        }
+
+        return pastQuizzes;
     }
 }

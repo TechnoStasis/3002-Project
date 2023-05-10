@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpExchange;
 import main.HtmlRenderer;
 import main.QuizManager;
 import main.UserManager;
+import main.quiz.Quiz;
 
 public class ProfilePage extends AbstractPageHandler {
 
@@ -47,6 +48,12 @@ public class ProfilePage extends AbstractPageHandler {
     HashMap<String, Object> dataToHTML = new HashMap<String, Object>();
     dataToHTML.put("username", user);
 
+    String pastQuizzes = "";
+    ArrayList<Quiz> past = QuizManager.INSTANCE.getPastQuizzes(UserManager.INSTANCE.getUser(user));
+    for (Quiz q : past)
+      pastQuizzes = pastQuizzes + "<p>" + q.getPath() + "</p>";
+
+    dataToHTML.put("pastquizzes", pastQuizzes);
     String htmlPage = HtmlRenderer.render(this.htmlPage, dataToHTML);
     t.sendResponseHeaders(200, htmlPage.length());
     t.getResponseBody().write(htmlPage.getBytes());
@@ -59,9 +66,16 @@ public class ProfilePage extends AbstractPageHandler {
     if (t.getRequestHeaders().get("Cookie") != null) {
       for (String str : t.getRequestHeaders().get("Cookie")) {
         user = str.split("=")[1].split(":")[0];
-        }
+      }
     }
     QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
+
+    ArrayList<String> redirect = new ArrayList<>();
+
+    redirect.add("quiz");
+    t.getResponseHeaders().put("Location", redirect);
+    t.sendResponseHeaders(302, -1);
+
   }
 
 }

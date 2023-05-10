@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Quiz {
@@ -39,11 +40,33 @@ public class Quiz {
         }
     }
 
+    public void save() throws IOException {
+        FileWriter f = new FileWriter(file);
+
+        f.write("type:" + type + "\n");
+        for (int i = 0; i < questions.length; i++) {
+            f.write("q" + (i + 1) + ":" + questions[i].attemptsLeft + ":" + (questions[i].correct ? 0 : 1) + "\n");
+        }
+        f.close();
+    }
+
     public String toString() {
         String str = "type: " + type + "\n";
         for (int i = 0; i < questions.length; i++)
-            str = str + i +": " + questions[i].toString() + "\n";
+            str = str + i + ": " + questions[i].toString() + "\n";
         return str;
+    }
+
+    public int getNumberOfAttempts(int question) {
+        return questions[question - 1].attemptsLeft;
+    }
+
+    public void setNumberOfAttempts(int question, int attempts) {
+        questions[question - 1].attemptsLeft = attempts;
+    }
+
+    public String getPath() {
+        return this.file.getName().replace(".txt", "");
     }
 
     class Question {
