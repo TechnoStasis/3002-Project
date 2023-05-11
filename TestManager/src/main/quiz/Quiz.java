@@ -46,7 +46,8 @@ public class Quiz {
 
         f.write("type:" + type + "\n");
         for (int i = 0; i < questions.length; i++) {
-            f.write("q" + (i + 1) + ":" + questions[i].attemptsLeft + ":" + (questions[i].correct ? 0 : 1) + "\n");
+            f.write("q" + (i + 1) + ":" + questions[i].attemptsLeft + ":" + (questions[i].correct ? 0 : 1));
+            f.write(":" + questions[i].id + "\n");
         }
         f.close();
     }
