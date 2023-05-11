@@ -44,11 +44,12 @@ public class QuizPage extends AbstractPageHandler {
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
         int cQ = Integer.parseInt(currentQuestion);
         int attempts = q.getNumberOfAttempts(cQ);
+        String id = q.getQuestionId(cQ);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
-
+        data.put("questionID", id.toUpperCase());
         data.put("button",
                 attempts > 0 ? HtmlRenderer.createButton("Submit") : HtmlRenderer.appendError("No More Attempts"));
 

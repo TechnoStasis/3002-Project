@@ -28,8 +28,9 @@ public class Quiz {
                     String attempts = line.split(":")[1];
                     char correct = line.split(":")[2].toCharArray()[0];
                     int cor = Integer.parseInt(correct + "");
+                    String id = line.split(":")[3].replace("\n", "");
                     boolean corr = cor > 0;
-                    questions[index] = new Question(Integer.parseInt(attempts), corr);
+                    questions[index] = new Question(Integer.parseInt(attempts), corr, id);
 
                     index++;
                 }
@@ -57,6 +58,11 @@ public class Quiz {
         return str;
     }
 
+    public String getQuestionId(int question)
+    {
+        return questions[question-1].id;
+    }
+
     public int getNumberOfAttempts(int question) {
         return questions[question - 1].attemptsLeft;
     }
@@ -80,15 +86,16 @@ public class Quiz {
     class Question {
         int attemptsLeft;
         boolean correct;
-
-        public Question(int a, boolean co) {
+        String id;
+        public Question(int a, boolean co, String id) {
             attemptsLeft = a;
             correct = co;
+            this.id = id;
         }
 
         @Override
         public String toString() {
-            return "{attempts remaining: " + attemptsLeft + ", correctness: " + correct + "}";
+            return "{id: " + id + ", attempts remaining: " + attemptsLeft + ", correctness: " + correct + "}";
         }
     }
 
