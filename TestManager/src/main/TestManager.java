@@ -12,9 +12,12 @@ import com.sun.net.httpserver.HttpServer;
 import main.page.AbstractPageHandler;
 import main.page.LoginPage;
 import main.page.ProfilePage;
+import main.page.QuizPage;
 import main.page.RegisterPage;
 
 public class TestManager {
+
+	public static final String MASTER_PATH = TestManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
@@ -44,10 +47,13 @@ public class TestManager {
 
 		});
 		s.createContext("/register", new RegisterPage());
+
 		s.createContext("/profile", new ProfilePage());
+		s.createContext("/quiz", new QuizPage());
 	}
 
 	public static void main(String[] args) {
+
 		try {
 			InetSocketAddress a = new InetSocketAddress("localhost", 8081);
 

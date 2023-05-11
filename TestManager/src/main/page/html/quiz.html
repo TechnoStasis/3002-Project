@@ -1,0 +1,74 @@
+<html>
+
+<head>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .question {
+            border: 1px outset gray;
+            background-color: darkgray;
+            text-align: left;
+        }
+
+        .quizContainer {
+            border: 1px outset gray;
+            background-color: darkgray;
+            text-align: center;
+        }
+
+        .navigation {
+            font-size: large;
+            text-align: left;
+        }
+
+        textarea {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+
+
+    <title>Quiz - Question No. {{questionnumber}}</title>
+
+</head>
+
+<form action="" method="post">
+    <div class="quizContainer">
+        <div class="navigation">
+            <b>Navigation</b>
+            <p>
+                <a href="quiz?=1"> 1 </a>
+                <a href="quiz?=2"> 2 </a>
+                <a href="quiz?=3"> 3 </a>
+                <a href="quiz?=4"> 4 </a>
+                <a href="quiz?=5"> 5 </a>
+                <a href="quiz?=6"> 6 </a>
+                <a href="quiz?=7"> 7 </a>
+                <a href="quiz?=8"> 8 </a>
+                <a href="quiz?=9"> 9 </a>
+                <a href="quiz?=10"> 10 </a>
+            </p>
+        </div>
+
+        <div class="question">
+            <p><b>Question:</b></p>
+            <p> {{question}} </p>
+            <p><b> Attempts Remaining:</b> {{attempts}} </p>
+            <p>
+                {{button}}
+             </p>
+        </div>
+
+        <p>
+            <label for="answer"><b>Answer Below</b></label>
+        </p>
+        <textarea id="answer" name="answer" rows="50" cols="50" style="width: 600px; height: 1000px;">
+         </textarea>
+        
+    </div>
+</form>
+
+</html>
