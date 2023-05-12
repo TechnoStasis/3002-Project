@@ -71,8 +71,10 @@ public class QuizManager {
 
                 FileWriter quizFile = new FileWriter(f);
                 quizFile.write("type:python\n");
-                for (int i = 1; i <= 10; i++)
-                    quizFile.write("q" + i + ":3:0 \n");
+                for (int i = 1; i <= 10; i++) {
+                    quizFile.write("q" + i + ":3:0");
+                    quizFile.write(":id" + "\n");
+                }
                 quizFile.close();
 
             } catch (IOException e) {
@@ -89,6 +91,8 @@ public class QuizManager {
                 in.close();
                 return f;
             }
+            if (str == null || str.isEmpty())
+                return null;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,10 +103,11 @@ public class QuizManager {
     public Quiz getCurrentQuiz(User user) throws FileNotFoundException, IOException {
         if (userquiz.get(user.getUsername()) != null)
             return userquiz.get(user.getUsername());
-        else {
+        else if (getCurrentUserQuizFile(user) != null) {
             userquiz.put(user.getUsername(), new Quiz(getCurrentUserQuizFile(user)));
             return userquiz.get(user.getUsername());
-        }
+        } else
+            return null;
     }
 
     public ArrayList<Quiz> getPastQuizzes(User user) throws IOException {
@@ -110,7 +115,7 @@ public class QuizManager {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(getUserQuizPath(user)))) {
             for (Path path : stream) {
                 if (!Files.isDirectory(path) && !path.toString().contains("index.txt")) {
-                  pastQuizzes.add(new Quiz(path.toFile()));
+                    pastQuizzes.add(new Quiz(path.toFile()));
                 }
             }
         }
