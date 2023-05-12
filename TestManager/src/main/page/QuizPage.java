@@ -13,6 +13,7 @@ import main.HtmlRenderer;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
+import users.User;
 
 public class QuizPage extends AbstractPageHandler {
 
@@ -63,25 +64,27 @@ public class QuizPage extends AbstractPageHandler {
     @Override
     public void handlePost(HttpExchange t) throws IOException {
 
-        String user = "";
+        String username = "";
         String password = "";
         if (t.getRequestHeaders().get("Cookie") != null) {
             for (String str : t.getRequestHeaders().get("Cookie")) {
-                user = str.split("=")[1].split(":")[0];
+                username = str.split("=")[1].split(":")[0];
                 password = str.split("=")[1].split(":")[1];
             }
         }
+
+        UserManager.INSTANCE.validate(username, password);
+        User user = UserManager.INSTANCE.getUser(username);
 
         InputStream io = t.getRequestBody();
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String answer = bufferedReader.readLine().replace("+", " ");
 
-        UserManager.INSTANCE.validate(user, password);
 
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
         int currQ = Integer.parseInt(currentQuestion);
-        Quiz q = QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user));
+        Quiz q = QuizManager.INSTANCE.getCurrentQuiz(user);
 
         // QUIZ BANK COMMUNICATION
 
