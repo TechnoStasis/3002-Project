@@ -1,4 +1,5 @@
 import socket
+import time
 
 HOST = '0.0.0.0' 
 PORT = 1234 #random port
@@ -27,13 +28,34 @@ with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as server_socket:
             conn.send(ack)
             print('ACK sent')
 
-            data = conn.recv(1024)
-            message = data.decode('utf-8')
-            print("Recieved message from the Client:", message)
+            # data = conn.recv(1024)
+            # message = data.decode('utf-8')
+            # print("Recieved message from the Client:", message)
 
-            test_message = 'Hello it reached!!'  #testing sending data
-            message_bytes = test_message.encode('utf-8')
-            conn.send(message_bytes)
+            # test_message = 'Hello it reached!!'  #testing sending data
+            # message_bytes = test_message.encode('utf-8')
+            # conn.send(message_bytes)
+            #print('Data sent, waiting for ACK...')
+
+            with open('questions.txt', 'r') as file:
+                questions = file.read().split("#")
+
+            for question in questions:
+                question_bytes = question.encode('utf-8')
+                conn.send(question_bytes)
+                print('Question sent, waiting for ACK...')
+
+
+            while True:
+                ack = conn.recv(1024)
+                if ack == bytes([0x04]): #0x04 bytes ack for data
+                    print('ACK recieved for data. Ready to send more..')
+                    break
+                else:
+                    print("No ACK recieved yet. Retrying...")
+                    time.sleep(2)
+                    conn.send(message_bytes)
+                    print('Data re-sent, waiting for ACK...')
 
             conn.close()
         else:
