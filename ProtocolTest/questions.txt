@@ -10,4 +10,4 @@ def squaring(int x):
 A. Square a function B. Cube a Function C. Idc
 #
 Question: DId thit work?
-A. Yes B. No
+A. Yes B. No C.Why did it not commit
