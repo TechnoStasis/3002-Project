@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Client {
     public static void main(String[] args) throws IOException {
-        String serverHostname = "192.168.0.2";  //needs to know servers ip in order to be able to do anything
+        String serverHostname = "192.168.0.14";  //needs to know servers ip in order to be able to do anything
         int serverPort = 1234;
 
 
