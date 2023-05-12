@@ -91,6 +91,8 @@ public class QuizManager {
                 in.close();
                 return f;
             }
+            if (str == null || str.isEmpty())
+                return null;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,10 +103,11 @@ public class QuizManager {
     public Quiz getCurrentQuiz(User user) throws FileNotFoundException, IOException {
         if (userquiz.get(user.getUsername()) != null)
             return userquiz.get(user.getUsername());
-        else {
+        else if (getCurrentUserQuizFile(user) != null) {
             userquiz.put(user.getUsername(), new Quiz(getCurrentUserQuizFile(user)));
             return userquiz.get(user.getUsername());
-        }
+        } else
+            return null;
     }
 
     public ArrayList<Quiz> getPastQuizzes(User user) throws IOException {

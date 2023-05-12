@@ -51,10 +51,17 @@ public class ProfilePage extends AbstractPageHandler {
     String pastQuizzes = "";
     ArrayList<Quiz> past = QuizManager.INSTANCE.getPastQuizzes(UserManager.INSTANCE.getUser(user));
     for (Quiz q : past)
-      pastQuizzes = pastQuizzes + "<p>" + "<b>" + q.getType().toUpperCase() + "</b> " + q.getPath().replace("T", " ") + " <b> Marks: " + q.totalMarks() + "/30 </b>" + "</p>";
+      pastQuizzes = pastQuizzes + "<p>" + "<b>" + q.getType().toUpperCase() + "</b> " + q.getPath().replace("T", " ")
+          + " <b> Marks: " + q.totalMarks() + "/30 </b>" + "</p>";
 
     dataToHTML.put("pastquizzes", pastQuizzes);
+    dataToHTML.put("button",
+        HtmlRenderer.createButton(
+            QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) != null ? "Continue Quiz"
+                : "Start New Quiz"));
+
     String htmlPage = HtmlRenderer.render(this.htmlPage, dataToHTML);
+
     t.sendResponseHeaders(200, htmlPage.length());
     t.getResponseBody().write(htmlPage.getBytes());
     t.getResponseBody().close();
@@ -68,7 +75,9 @@ public class ProfilePage extends AbstractPageHandler {
         user = str.split("=")[1].split(":")[0];
       }
     }
-    QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
+
+    if (QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) == null)
+      QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
 
     ArrayList<String> redirect = new ArrayList<>();
 
