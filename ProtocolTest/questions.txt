@@ -1,0 +1,13 @@
+Question: What is a null pointer exception?
+
+A. An error B. A pointer C. An application to use null in a case where an object is required
+#
+Question: What would the following code do
+def squaring(int x):
+    int y = x^2
+    return ye
+
+A. Square a function B. Cube a Function C. Idc
+#
+Question: DId thit work?
+A. Yes B. No
