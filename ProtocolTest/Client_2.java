@@ -1,9 +1,12 @@
 import java.net.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Client_2 {
     public static void main(String[] args) throws IOException {
-        String serverHostname = "192.168.0.14";  //needs to know servers ip in order to be able to do anything
+        String serverHostname = "192.168.0.14";
         int serverPort = 1234;
 
         Socket clientSocket = new Socket(serverHostname, serverPort);
@@ -31,40 +34,58 @@ public class Client_2 {
 
                 StringBuilder question = new StringBuilder();
                 int receivedChar;
-                // Identify when a question is sent from the server and when full question sent, write it into text file 
-                // Send acknowledgement for each question recieved else question will be re-sent
+
                 while ((receivedChar = inputStream.read()) != -1) {
                     char character = (char) receivedChar;
                     if (character == '#') {
                         question.append(character);
                         System.out.println("Received data: " + question.toString());
 
-                        fileWriter.write(question.toString());
-                        fileWriter.newLine();
+                        // Split the received data into hash and question
+                        String[] splitData = question.toString().split(" ", 2);
+                        String receivedHash = splitData[0];
+                        String actualQuestion = splitData[1];
 
-                        byte[] dataAck = {0x04};
-                        outputStream.write(dataAck);
-                        System.out.println("ACK sent for data");
+                        try {
+
+                            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                            // Question string coverted back into bytes to create a byte array of computed hash
+                            byte[] encodedhash = digest.digest(
+                                actualQuestion.getBytes(StandardCharsets.UTF_8));
+                            // convert into hexadecimal string
+                            String calculatedHash = bytesToHex(encodedhash);
+
+                            if (calculatedHash.equals(receivedHash)) {
+                                fileWriter.write(actualQuestion);
+                                fileWriter.newLine();
+                                System.out.println("Nice it was the correct hash, correct data");
+
+                                byte[] dataAck = {0x04};
+                                outputStream.write(dataAck);
+                                System.out.println("ACK sent for data");
+                            } else {
+                                System.out.println("Hash mismatch for received data. Data may be corrupted.");
+                            }
+
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        }
 
                         question.setLength(0); // Clear the question
-                      //If server has sent all the data it wanted to using character '@' to signify it  
                     } else if (character == '@'){
-                        System.out.println("Recieved end of data ");
+                        System.out.println("Received end of data ");
                         byte[] endDataAck = {0x05};
                         outputStream.write(endDataAck);
                         System.out.println("ACK sent for end of data");
                         break;
-                    } 
-                    else {
+                    } else {
                         question.append(character);
                     }
                 }
 
-                //Data has all been done
                 byte[] end_ack = {0x05};
                 outputStream.write(end_ack);
-                System.out.println("Data in text file successfully recieved and stored");
-
+                System.out.println("Data in text file successfully received and stored");
 
                 fileWriter.close();
                 clientSocket.close();
@@ -74,5 +95,17 @@ public class Client_2 {
         } else {
             System.out.println("Failed to receive SYN");
         }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

@@ -1,5 +1,6 @@
 import socket
 import time
+import hashlib
 
 HOST = '0.0.0.0' 
 PORT = 1234 #random port
@@ -42,8 +43,9 @@ with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as server_socket:
 
             for question in questions:
                 question_bytes = (question + '#').encode('utf-8')  # Add back the hashtag u want it as seperator
-                conn.send(question_bytes)
-                print('Question sent, waiting for ACK...')
+                hash_check = hashlib.sha256(question_bytes).hexdigest().encode('utf-8')
+                conn.send(hash_check + b' ' + question_bytes)
+                print('Question and hash sent, waiting for ACK...')
 
                 while True:
                     ack = conn.recv(1024)
@@ -51,9 +53,9 @@ with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as server_socket:
                         print('ACK received for data. Ready to send more..')
                         break
                     else:
-                        print("No ACK received yet. Retrying...")
+                        print("No ACK received yet. Retrying..., maybe due to ACK not sending or Data being corrupted")
                         time.sleep(2)
-                        conn.send(question_bytes)
+                        conn.send(hash_check + b' ' + question_bytes)
                         print('Data re-sent, waiting for ACK...')
             
             conn.send(b'@')
