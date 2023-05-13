@@ -47,12 +47,24 @@ public class Client_2 {
                         System.out.println("ACK sent for data");
 
                         question.setLength(0); // Clear the question
-                    } else {
+                      //If server has sent all the data it wanted to using character '@' to signify it  
+                    } else if (character == '@'){
+                        System.out.println("Recieved end of data ");
+                        byte[] endDataAck = {0x05};
+                        outputStream.write(endDataAck);
+                        System.out.println("ACK sent for end of data");
+                        break;
+                    } 
+                    else {
                         question.append(character);
                     }
                 }
 
-                
+                //Data has all been done
+                byte[] end_ack = {0x05};
+                outputStream.write(end_ack);
+                System.out.println("Data in text file successfully recieved and stored");
+
 
                 fileWriter.close();
                 clientSocket.close();
