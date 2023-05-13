@@ -7,66 +7,60 @@ public class Client_2 {
         int serverPort = 1234;
 
         Socket clientSocket = new Socket(serverHostname, serverPort);
-        System.out.println("COnnected to server: " + clientSocket); //testing what server connected to
-        
+        System.out.println("Connected to server: " + clientSocket);
 
         InputStream inputStream = clientSocket.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));     
-        byte[] syn = new byte[1]; //client sends Syn
+        OutputStream outputStream = clientSocket.getOutputStream();
+        
+        byte[] syn = new byte[1];
         inputStream.read(syn);
- 
-        if (syn[0] == 0x01){  //test if client got a syn
-            System.out.println("SYN recieved");
 
-            OutputStream outputStream = clientSocket.getOutputStream(); //send syn-ack to server
+        if (syn[0] == 0x01) {
+            System.out.println("SYN received");
+
             byte[] synAck = {0x02};
             outputStream.write(synAck);
             System.out.println("SYN-ACK sent");
 
-            //Create file writer
-            BufferedWriter fileWriter = new BufferedWriter(new FileWriter("serverdata.txt"));
-
-            byte[] ack = new byte[1]; //client recieves ack
+            byte[] ack = new byte[1];
             inputStream.read(ack);
-            if (ack[0] == 0x03){
-                System.out.println("ACK recieved");
-                //Loop to get all questions from merged questions file
-                String recievedData;
-                while ((recievedData = reader.readLine()) != null){
-                    System.out.println("Recieved data: " + recievedData);
+            if (ack[0] == 0x03) {
+                System.out.println("ACK received");
 
-                    fileWriter.write(recievedData);
-                    fileWriter.newLine();
+                BufferedWriter fileWriter = new BufferedWriter(new FileWriter("serverdata.txt"));
 
-                    byte[] dataAck = {0x04};
-                    outputStream.write(dataAck);
-                    System.out.println("ACK sent for data");
+                StringBuilder question = new StringBuilder();
+                int receivedChar;
+                // Identify when a question is sent from the server and when full question sent, write it into text file 
+                // Send acknowledgement for each question recieved else question will be re-sent
+                while ((receivedChar = inputStream.read()) != -1) {
+                    char character = (char) receivedChar;
+                    if (character == '#') {
+                        question.append(character);
+                        System.out.println("Received data: " + question.toString());
 
+                        fileWriter.write(question.toString());
+                        fileWriter.newLine();
+
+                        byte[] dataAck = {0x04};
+                        outputStream.write(dataAck);
+                        System.out.println("ACK sent for data");
+
+                        question.setLength(0); // Clear the question
+                    } else {
+                        question.append(character);
+                    }
                 }
 
+                
 
-            /*     String message = "Hello from the Client!, all 3 acknlowedgments went through!";  //testing writing message to server
-                byte[] messageBytes = message.getBytes();
-                outputStream.write(messageBytes);   */
-             /*    byte[] dataAck = {0x04};
-                outputStream.write(dataAck);
-                System.out.println("ACK sent for data");  */
-
-            //    byte[] responseBytes = new byte[1024];  //testing recieveing data from server
-            //    int bytesRead = inputStream.read(responseBytes);
-            //    String response = new String(responseBytes,0, bytesRead);
-            //    System.out.println("Recieved message from server: " + response);   
-
-                fileWriter.close();  //close file
-                clientSocket.close();  //close socket
-
+                fileWriter.close();
+                clientSocket.close();
+            } else {
+                System.out.println("Failed to receive ACK");
             }
-            else{
-                System.out.println("Failed to recieve ACK");
-            }
-        }
-        else{
-            System.out.println("Failed to recieve SYN");
+        } else {
+            System.out.println("Failed to receive SYN");
         }
     }
 }

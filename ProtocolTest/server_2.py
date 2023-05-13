@@ -41,22 +41,22 @@ with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as server_socket:
                 questions = file.read().split("#")
 
             for question in questions:
-                question_bytes = question.encode('utf-8')
+                question_bytes = (question + '#').encode('utf-8')  # Add back hashtag u want it as a seperator
                 conn.send(question_bytes)
                 print('Question sent, waiting for ACK...')
 
-
-            while True:
-                ack = conn.recv(1024)
-                if ack == bytes([0x04]): #0x04 bytes ack for data
-                    print('ACK recieved for data. Ready to send more..')
-                    break
-                else:
-                    print("No ACK recieved yet. Retrying...")
-                    time.sleep(2)
-                    conn.send(message_bytes)
-                    print('Data re-sent, waiting for ACK...')
+                while True:
+                    ack = conn.recv(1024)
+                    if ack == bytes([0x04]):  #0x04 bytes ack for data
+                        print('ACK received for data. Ready to send more..')
+                        break
+                    else:
+                        print("No ACK received yet. Retrying...")
+                        time.sleep(2)
+                        conn.send(question_bytes)
+                        print('Data re-sent, waiting for ACK...')
 
             conn.close()
+
         else:
             print("Failed to recieve acknlowedgements or send")
