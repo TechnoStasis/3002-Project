@@ -23,7 +23,7 @@ public class ProfilePage extends AbstractPageHandler {
   public void handleGet(HttpExchange t) throws IOException {
     String user = "";
     String password = "";
-   
+
     if (t.getRequestHeaders().get("Cookie") != null) {
       for (String str : t.getRequestHeaders().get("Cookie")) {
         user = str.split("=")[1].split(":")[0];
@@ -31,13 +31,11 @@ public class ProfilePage extends AbstractPageHandler {
       }
     }
 
-    if (!UserManager.INSTANCE.validate(user, password)) {
+    if (!UserManager.INSTANCE.validate(user, password))
       redirect(t, "logout");
-    }
 
-    if (user.isEmpty()) {
+    if (user.isEmpty())
       redirect(t, "login");
-    }
 
     HashMap<String, Object> dataToHTML = new HashMap<String, Object>();
     dataToHTML.put("username", user);

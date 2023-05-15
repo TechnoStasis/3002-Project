@@ -31,9 +31,9 @@ public class QuizPage extends AbstractPageHandler {
             }
         }
 
-        if (!t.getRequestURI().toASCIIString().contains("?=")) {
+        if (!t.getRequestURI().toASCIIString().contains("?=")) 
              redirect(t, "quiz?=1");
-        }
+        
 
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
 
