@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HtmlRenderer {
+public class HtmlHelper {
 
     public static final String TEMPLATE_PATH = "/Users/yvesreyes/Documents/3002-Project/TestManager/src/main/page/html/";
 
