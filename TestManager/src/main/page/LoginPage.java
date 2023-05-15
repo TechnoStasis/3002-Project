@@ -10,21 +10,21 @@ import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.HtmlRenderer;
+import main.HtmlHelper;
 import main.UserManager;
 
 public class LoginPage extends AbstractPageHandler {
 
   String htmlPage;
   public LoginPage() {
-    htmlPage = HtmlRenderer.readHTML("login.html");
+    htmlPage = HtmlHelper.readHTML("login.html");
   }
   
   @Override
   public void handleGet(HttpExchange t) throws IOException {
     HashMap<String, Object> hiddenError = new HashMap<>();
     hiddenError.put("error", "");
-    String htmlPage = HtmlRenderer.render(this.htmlPage, hiddenError);
+    String htmlPage = HtmlHelper.render(this.htmlPage, hiddenError);
     t.sendResponseHeaders(200, htmlPage.length());
     OutputStream os = t.getResponseBody();
     os.write(htmlPage.getBytes());
@@ -50,8 +50,8 @@ public class LoginPage extends AbstractPageHandler {
       redirect(t, "profile");
     } else {
       HashMap<String, Object> hiddenError = new HashMap<>();
-      hiddenError.put("error", HtmlRenderer.appendError("Wrong username or password!"));
-      String htmlPage = HtmlRenderer.render(this.htmlPage, hiddenError);
+      hiddenError.put("error", HtmlHelper.appendError("Wrong username or password!"));
+      String htmlPage = HtmlHelper.render(this.htmlPage, hiddenError);
       t.sendResponseHeaders(200, htmlPage.length());
       OutputStream os = t.getResponseBody();
       os.write(htmlPage.getBytes());

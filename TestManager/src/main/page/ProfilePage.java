@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.HtmlRenderer;
+import main.HtmlHelper;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
@@ -16,7 +16,7 @@ public class ProfilePage extends AbstractPageHandler {
   private final String htmlPage;
 
   public ProfilePage() {
-    htmlPage = HtmlRenderer.readHTML("profile.html");
+    htmlPage = HtmlHelper.readHTML("profile.html");
   }
 
   @Override
@@ -44,17 +44,17 @@ public class ProfilePage extends AbstractPageHandler {
     ArrayList<Quiz> past = QuizManager.INSTANCE.getPastQuizzes(UserManager.INSTANCE.getUser(user));
     for (Quiz q : past)
       pastQuizzes = pastQuizzes
-          + HtmlRenderer
-              .paragraphTag(HtmlRenderer.boldTag(q.getType().toUpperCase() + " ") + q.getPath().replace("T", " ")
-                  + HtmlRenderer.boldTag(" Marks: " + q.totalMarks() + "/30"));
+          + HtmlHelper
+              .paragraphTag(HtmlHelper.boldTag(q.getType().toUpperCase() + " ") + q.getPath().replace("T", " ")
+                  + HtmlHelper.boldTag(" Marks: " + q.totalMarks() + "/30"));
 
     dataToHTML.put("pastquizzes", pastQuizzes);
     dataToHTML.put("button",
-        HtmlRenderer.createButton(
+        HtmlHelper.createButton(
             QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) != null ? "Continue Quiz"
                 : "Start New Quiz"));
 
-    String htmlPage = HtmlRenderer.render(this.htmlPage, dataToHTML);
+    String htmlPage = HtmlHelper.render(this.htmlPage, dataToHTML);
 
     t.sendResponseHeaders(200, htmlPage.length());
     t.getResponseBody().write(htmlPage.getBytes());

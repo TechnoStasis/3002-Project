@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.HtmlRenderer;
+import main.HtmlHelper;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
@@ -19,7 +19,7 @@ public class QuizPage extends AbstractPageHandler {
     String htmlPage;
 
     public QuizPage() {
-        htmlPage = HtmlRenderer.readHTML("quiz.html");
+        htmlPage = HtmlHelper.readHTML("quiz.html");
     }
 
     @Override
@@ -47,9 +47,9 @@ public class QuizPage extends AbstractPageHandler {
         data.put("attempts", attempts + "");
         data.put("questionID", id.toUpperCase());
         data.put("button",
-                attempts > 0 ? HtmlRenderer.createButton("Submit") : HtmlRenderer.appendError("No More Attempts"));
+                attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));
 
-        String htmlPage = HtmlRenderer.render(this.htmlPage, data);
+        String htmlPage = HtmlHelper.render(this.htmlPage, data);
 
         t.sendResponseHeaders(200, htmlPage.length());
         t.getResponseBody().write(htmlPage.getBytes());
