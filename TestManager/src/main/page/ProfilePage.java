@@ -43,8 +43,10 @@ public class ProfilePage extends AbstractPageHandler {
     String pastQuizzes = "";
     ArrayList<Quiz> past = QuizManager.INSTANCE.getPastQuizzes(UserManager.INSTANCE.getUser(user));
     for (Quiz q : past)
-      pastQuizzes = pastQuizzes + "<p>" + "<b>" + q.getType().toUpperCase() + "</b> " + q.getPath().replace("T", " ")
-          + " <b> Marks: " + q.totalMarks() + "/30 </b>" + "</p>";
+      pastQuizzes = pastQuizzes
+          + HtmlRenderer
+              .paragraphTag(HtmlRenderer.boldTag(q.getType().toUpperCase() + " ") + q.getPath().replace("T", " ")
+                  + HtmlRenderer.boldTag(" Marks: " + q.totalMarks() + "/30"));
 
     dataToHTML.put("pastquizzes", pastQuizzes);
     dataToHTML.put("button",

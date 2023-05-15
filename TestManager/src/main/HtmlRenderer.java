@@ -68,4 +68,12 @@ public class HtmlRenderer {
     public static final String createButton(String name) {
         return "<button type=\"submit\">" + name + "</button>";
     }
+
+    public static final String paragraphTag(String name) {
+        return "<p>" + name + "</p>";
+    }
+
+    public static final String boldTag(String name) {
+        return "<b>" + name + "</b>";
+    }
 }
