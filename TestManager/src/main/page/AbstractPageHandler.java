@@ -21,7 +21,7 @@ public abstract class AbstractPageHandler implements HttpHandler {
 
     public abstract void handlePost(HttpExchange t) throws IOException;
 
-    public static final void redirect(HttpExchange t, String location) throws IOException {
+    public final void redirect(HttpExchange t, String location) throws IOException {
         ArrayList<String> redir = new ArrayList<>();
         redir.add(location);
         t.getResponseHeaders().put("Location", redir);
