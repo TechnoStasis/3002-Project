@@ -23,7 +23,7 @@ public class ProfilePage extends AbstractPageHandler {
   public void handleGet(HttpExchange t) throws IOException {
     String user = "";
     String password = "";
-    ArrayList<String> redirect = new ArrayList<>();
+   
     if (t.getRequestHeaders().get("Cookie") != null) {
       for (String str : t.getRequestHeaders().get("Cookie")) {
         user = str.split("=")[1].split(":")[0];
