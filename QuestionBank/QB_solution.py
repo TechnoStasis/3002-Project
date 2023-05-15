@@ -242,7 +242,7 @@ def main(HOST, PORT):
 
                     conn.close()
 
-                elif data == encoder("MK"):                #question marking request
+                elif data == encoder("MK"):                #question marking request (per request)
 
                     conn.sendall(data)
 
@@ -255,10 +255,10 @@ def main(HOST, PORT):
                     input = msg.split('#')
 
                     if(int(input[1]) != 1):
-                        #need to unserealise input[0] (aka. student code) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
+                        #need to unserealise input[0] (aka. student written code) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
 
                         with open("studentA.txt", "wb") as outfile:
-                   #unserealise input[0] into this file        *_TODO_*
+                        #write input[0] into this file        *_TODO_*
 
                         oldPath = os.path.realpath("studentA.txt")
 
@@ -278,7 +278,7 @@ def main(HOST, PORT):
                     messageBytes = payload.encode('utf-8')
                     conn.sendall(messageBytes)
 
-                elif data == encoder("DS"):              #sample answer fetching request
+                elif data == encoder("DS"):              #sample answer fetching request (per request)
 
                     conn.sendall(data)
 
@@ -288,7 +288,7 @@ def main(HOST, PORT):
                         break
 
                     msg = spec.decode('utf-8')
-                    input = msg.split('#')
+                    input = msg
 
                     # gives the path of QB
                     path = os.path.realpath(__file__)
@@ -298,16 +298,14 @@ def main(HOST, PORT):
                     print("Debug dir:" + dir)
                     os.chdir(dir)
 
-                    output = []
+                    output = ""
 
-                    for element in input:
-                        fName = str(element) + ".txt"
-                        output.append(fName)
-
+                    fName = str(input) + ".txt"
+                    output = fName
+                        
                     with open("result.txt", "wb") as outfile:
-                        for f in output:
-                            with open(f, "rb") as infile:
-                                outfile.write(infile.read())
+                        with open(output, "rb") as infile:
+                            outfile.write(infile.read())
 
                             outfile.write("#\n")                          #each distinct sample answer is # sperated
 
