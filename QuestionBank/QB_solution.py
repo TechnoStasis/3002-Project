@@ -155,41 +155,27 @@ def encoder(str):
 
 
 def main(HOST, PORT):
-    with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as server_socket:
-        server_socket.bind((HOST, PORT))   #Bind takes in a tuple
-        server_socket.listen()
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        print(f'Server is lisetning on {HOST} : {PORT}')
-        print(f'The IP address of {hostname} os {ip_address}')
-
-        while True:
-            conn, addr = server_socket.accept()
-            print(f'New Client connected" {addr}')
-
-            syn = bytes([0x01])  #send synchronisation message
-            conn.send(syn)
-            print('SYN sent')
-
-            syn_ack = conn.recv(1024)
-            if syn_ack == bytes([0x02]):  #Acknowledge recieved
-                print('SYN-ACK recieved')
-
-                ack = bytes([0x03])  #Server send acknowled
-                conn.send(ack)
-                print('ACK sent')
-
-
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen()
+        print(f"Server is listening on {HOST}:{PORT}")
+        conn, addr = s.accept()
+        with conn:
+            print(f"Connected by {addr}")
+            while True:
                 data = conn.recv(1024)
-                message = data.decode('utf-8')
-                print("Recieved message from the Client:", message)
+                if not data:
+                    break
 
-                if message == encoder("QF"):                #question fetching request, TM sends "QF" to use this function, same logic down below
-                    ack = bytes([0x03])                     #Server send ACK, make this a special byte so that the TM can recogonize it and send the amount and question type straight away (format is "amount#type", e.g. "10#C")
-                    conn.send(ack)
-                    print('ACK sent')
+                elif data == encoder("QF"):                #question fetching request, TM sends "QF" to use this function, same logic down below
+
+                    conn.sendall(data)
 
                     spec = conn.recv(1024)
+                    if not spec:
+                        conn.sendall(encoder("error"))
+                        break
+
                     msg = spec.decode('utf-8')
                     input = msg.split('#')
 
@@ -216,16 +202,21 @@ def main(HOST, PORT):
 
                             outfile.write("#\n")                          #each distinct question is # sperated
 
-                    payload =                                                 #send payload "result.txt" (a text file of all question generated), NEED to serialize it (to JSON) before sending it        *_TODO_*
-                    message_bytes = payload.encode('utf-8')
-                    conn.send(message_bytes)
+                        outfile.write(QList)                              #writes the Question refrence ID list to the last line of the file for TM to read             *_MAY NEED FIXING_*
 
-                elif message == encoder("MK"):                #question marking request
-                    ack = bytes([0x03])                       #Server send ACK, make this a special byte so that the TM can recogonize it and send the answer, question type and question ID straight away (format is e.g. "D#1#16")
-                    conn.send(ack)
-                    print('ACK sent')
+                    payload =                                                 #send payload "result.txt" (a text file of all question generated), NEED to serialize it (to JSON) before sending it        *_TODO_*
+                    messageBytes = payload.encode('utf-8')
+                    conn.sendall(messageBytes)
+
+                elif data == encoder("MK"):                #question marking request
+
+                    conn.sendall(data)
 
                     spec = conn.recv(1024)
+                    if not spec:
+                        conn.sendall(encoder("error"))
+                        break
+
                     msg = spec.decode('utf-8')
                     input = msg.split('#')
 
@@ -250,15 +241,18 @@ def main(HOST, PORT):
                         output = assessor(str(input[0]), int(input[1]), int(input[2]))          ##need to unserealise input[0] (aka. student code) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file
 
                     payload =                                                 #send payload "output", NEED to serialize it (to JSON) before sending it        *_TODO_*
-                    message_bytes = payload.encode('utf-8')
-                    conn.send(message_bytes)
+                    messageBytes = payload.encode('utf-8')
+                    conn.sendall(messageBytes)
 
-                elif message == encoder("DS"):              #sample answer fetching request
-                    ack = bytes([0x03])                     #Server send ACK, make this a special byte so that the TM can recogonize it and send the question IDs straight away (format is e.g. "10#12#5#2#7#22#19#1")
-                    conn.send(ack)
-                    print('ACK sent')
+                elif data == encoder("DS"):              #sample answer fetching request
+
+                    conn.sendall(data)
 
                     spec = conn.recv(1024)
+                    if not spec:
+                        conn.sendall(encoder("error"))
+                        break
+
                     msg = spec.decode('utf-8')
                     input = msg.split('#')
 
@@ -284,12 +278,8 @@ def main(HOST, PORT):
                             outfile.write("#\n")                          #each distinct sample answer is # sperated
 
                     payload =                                                 #send payload "result.txt" (a text file of all question generated), NEED to serialize it (to JSON) before sending it        *_TODO_*
-                    message_bytes = payload.encode('utf-8')
-                    conn.send(message_bytes)
-
-                conn.close()
-            else:
-                print("Failed to recieve acknlowedgements or send")
+                    messageBytes = payload.encode('utf-8')
+                    conn.sendall(messageBytes)
 
 
 if __name__ == "__main__":
