@@ -71,11 +71,8 @@ public class RegisterPage extends AbstractPageHandler {
         }
 
         UserManager.INSTANCE.registerUser(new User(username, password));
-        ArrayList<String> redir = new ArrayList<>();
-        redir.add("login");
-        t.getResponseHeaders().put("Location", redir);
-        t.sendResponseHeaders(302, -1);
-        t.close();
+        
+        redirect(t, "login");
     }
 
 }

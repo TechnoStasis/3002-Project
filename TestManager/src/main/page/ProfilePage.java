@@ -32,17 +32,11 @@ public class ProfilePage extends AbstractPageHandler {
     }
 
     if (!UserManager.INSTANCE.validate(user, password)) {
-      redirect.add("logout");
-      t.getResponseHeaders().put("Location", redirect);
-      t.sendResponseHeaders(302, -1);
-      t.close();
+      redirect(t, "logout");
     }
 
     if (user.isEmpty()) {
-      redirect.add("login");
-      t.getResponseHeaders().put("Location", redirect);
-      t.sendResponseHeaders(302, -1);
-      t.close();
+      redirect(t, "login");
     }
 
     HashMap<String, Object> dataToHTML = new HashMap<String, Object>();
@@ -79,12 +73,7 @@ public class ProfilePage extends AbstractPageHandler {
     if (QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) == null)
       QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
 
-    ArrayList<String> redirect = new ArrayList<>();
-
-    redirect.add("quiz");
-    t.getResponseHeaders().put("Location", redirect);
-    t.sendResponseHeaders(302, -1);
-
+    redirect(t, "quiz");
   }
 
 }

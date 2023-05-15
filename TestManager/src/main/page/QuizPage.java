@@ -33,11 +33,7 @@ public class QuizPage extends AbstractPageHandler {
         }
 
         if (!t.getRequestURI().toASCIIString().contains("?=")) {
-            ArrayList<String> redir = new ArrayList<>();
-            redir.add("quiz?=1");
-            t.getResponseHeaders().put("Location", redir);
-            t.sendResponseHeaders(302, -1);
-            t.close();
+             redirect(t, "quiz?=1");
         }
 
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
@@ -81,22 +77,16 @@ public class QuizPage extends AbstractPageHandler {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String answer = bufferedReader.readLine().replace("+", " ");
 
-
-        String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
-        int currQ = Integer.parseInt(currentQuestion);
+        int currentQuestion = Integer.parseInt(t.getRequestURI().toASCIIString().split("=")[1]);
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(user);
 
         // QUIZ BANK COMMUNICATION
 
-        int attempts = q.getNumberOfAttempts(currQ);
+        int attempts = q.getNumberOfAttempts(currentQuestion);
 
-        q.setNumberOfAttempts(currQ, attempts - 1);
+        q.setNumberOfAttempts(currentQuestion, attempts - 1);
         q.save();
-        
-        ArrayList<String> redirect = new ArrayList<>();
-        redirect.add(t.getRequestURI().toString());
-        t.getResponseHeaders().put("Location", redirect);
-        t.sendResponseHeaders(302, -1);
-        t.close();
+
+        redirect(t, t.getRequestURI().toString());
     }
 }

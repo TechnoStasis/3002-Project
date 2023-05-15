@@ -46,11 +46,8 @@ public class LoginPage extends AbstractPageHandler {
       ArrayList<String> cookies = new ArrayList<String>();
       cookies.add("user=" + username + ":" + password);
       t.getResponseHeaders().put("Set-Cookie", cookies);
-      ArrayList<String> redirect = new ArrayList<String>();
-      redirect.add("profile");
-      t.getResponseHeaders().put("Location", redirect);
-      t.sendResponseHeaders(302, -1);
-      t.close();
+
+      redirect(t, "profile");
     } else {
       HashMap<String, Object> hiddenError = new HashMap<>();
       hiddenError.put("error", HtmlRenderer.appendError("Wrong username or password!"));
