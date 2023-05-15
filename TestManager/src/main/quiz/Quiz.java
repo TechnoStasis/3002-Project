@@ -30,7 +30,7 @@ public class Quiz {
                     int cor = Integer.parseInt(correct + "");
                     String id = line.split(":")[3].replace("\n", "");
                     boolean corr = cor > 0;
-                    questions[index] = new Question(Integer.parseInt(attempts), corr, id);
+                    questions[index] = new Question(Integer.parseInt(attempts), corr, id, index + 1);
 
                     index++;
                 }
@@ -48,6 +48,7 @@ public class Quiz {
         for (int i = 0; i < questions.length; i++) {
             f.write("q" + (i + 1) + ":" + questions[i].attemptsLeft + ":" + (questions[i].correct ? 0 : 1));
             f.write(":" + questions[i].id + "\n");
+            questions[i].save();
         }
         f.close();
     }
@@ -59,13 +60,20 @@ public class Quiz {
         return str;
     }
 
-    public String getQuestionId(int question)
-    {
-        return questions[question-1].id;
+    public String getQuestionId(int question) {
+        return questions[question - 1].id;
+    }
+
+    public String getAnswer(int question) {
+        return questions[question - 1].answer;
     }
 
     public int getNumberOfAttempts(int question) {
         return questions[question - 1].attemptsLeft;
+    }
+
+    public void setAnswer(int question, String answer) {
+        questions[question - 1].answer = answer;
     }
 
     public void setNumberOfAttempts(int question, int attempts) {
@@ -88,7 +96,28 @@ public class Quiz {
         int attemptsLeft;
         boolean correct;
         String id;
-        public Question(int a, boolean co, String id) {
+        File questionPath;
+        String answer = "";
+
+        public Question(int a, boolean co, String id, int number) {
+            questionPath = new File(file.getAbsolutePath().replace(".txt", "/" + number + ".txt"));
+            new File(questionPath.getParent()).mkdirs();
+            if (!questionPath.exists())
+                try {
+                    questionPath.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            else
+                try (BufferedReader br = new BufferedReader(new FileReader(questionPath))) {
+                    String line;
+                    while (((line = br.readLine()) != null)) {
+                        answer = answer + line;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             attemptsLeft = a;
             correct = co;
             this.id = id;
@@ -97,6 +126,12 @@ public class Quiz {
         @Override
         public String toString() {
             return "{id: " + id + ", attempts remaining: " + attemptsLeft + ", correctness: " + correct + "}";
+        }
+
+        public void save() throws IOException {
+            FileWriter f = new FileWriter(questionPath);
+            f.write(answer);
+            f.close();
         }
     }
 

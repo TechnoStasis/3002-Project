@@ -42,10 +42,13 @@ public class QuizPage extends AbstractPageHandler {
         int attempts = q.getNumberOfAttempts(cQ);
         String id = q.getQuestionId(cQ);
 
+        String answer = q.getAnswer(cQ);
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
         data.put("questionID", id.toUpperCase());
+        data.put("answer", answer);
         data.put("button",
                 attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));
 
@@ -74,10 +77,12 @@ public class QuizPage extends AbstractPageHandler {
         InputStream io = t.getRequestBody();
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String answer = bufferedReader.readLine().replace("+", " ");
+        String answer = bufferedReader.readLine().split("=")[1].replace("+", " ");
 
         int currentQuestion = Integer.parseInt(t.getRequestURI().toASCIIString().split("=")[1]);
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(user);
+
+        q.setAnswer(currentQuestion, answer);
 
         // QUIZ BANK COMMUNICATION
 
