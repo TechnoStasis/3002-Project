@@ -3,6 +3,8 @@ import random
 import os
 import socket
 import sys
+import time
+import hashlib
 
 
 def compileAndExecutionC(fileName, filePath):                                     ##usage: fileName -> helloWorld.c      filePath -> home/user/.../helloWorld.c
@@ -157,7 +159,7 @@ def encoder(str):
 def main(HOST, PORT):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
-        s.listen()
+        s.listen(5)
         print(f"Server is listening on {HOST}:{PORT}")
         conn, addr = s.accept()
         with conn:
@@ -167,19 +169,70 @@ def main(HOST, PORT):
                 if not data:
                     break
 
-                elif data == encoder("QF"):                #question fetching request, TM sends "QF" to use this function, same logic down below
+                elif data == encoder("QF"):                #question list fetching request, TM sends "QF" to use this function, same logic down below
 
-                    conn.sendall(data)
+                    ack = bytes([0x03])
+                    conn.sendall(ack)
 
                     spec = conn.recv(1024)
                     if not spec:
                         conn.sendall(encoder("error"))
                         break
+                    else:
+                        ack = bytes([0x04])
+                        conn.sendall(ack)
 
                     msg = spec.decode('utf-8')
                     input = msg.split('#')
 
                     QList = rngQuestion(int(input[0]), str(input[1]))
+
+                    questionBytes = (str(QList)).encode('utf-8')
+                    hashCheck = hashlib.sha256(questionBytes).hexdigest().encode('utf-8')
+                    conn.send(hashCheck + b' ' + questionBytes)
+
+                    while True:
+                        ack = conn.recv(1024)
+                        if ack == bytes([0x04]):  #bytes ack for data
+                            #print('Ack Recieved for data. Ready to send more...') #Debugging line
+                            break
+                        else:
+                            #print("No ACK recieved yet. Retrying..., maybe due to ACK not sending or Data being corrupted") #Debug line
+                            time.sleep(2)
+                            conn.send(hashCheck + b' ' + questionBytes)
+                            # print('Data re-sent, waiting for ACK...') #Debugging line
+                    
+                    conn.send(b'@')
+                    print('End of data sent')
+
+                    while True:
+                        end_ack = conn.recv(1024)
+                        if end_ack == bytes([0x05]):
+                            print('End of data ACK recieved')
+                            break
+                        else:
+                            print("No end of data ACK recieved yet. Retrying...")
+                            time.sleep(2)
+                            conn.send(b'@')
+                            print('End of data sent again, waiting for ACK...')
+
+                    conn.close()
+
+                elif data == encoder("TXT"):                #question plain txt fetching request (per request)
+
+                    ack = bytes([0x03])
+                    conn.sendall(ack)
+
+                    spec = conn.recv(1024)
+                    if not spec:                            #no error checking on the recived command, too expensive
+                        conn.sendall(encoder("error"))
+                        break
+                    else:
+                        ack = bytes([0x04])
+                        conn.sendall(ack)
+
+                    msg = spec.decode('utf-8')
+                    input = msg
 
                     # gives the path of QB
                     path = os.path.realpath(__file__)
@@ -188,43 +241,78 @@ def main(HOST, PORT):
                     dir = dir.replace("src", "questionArchive")
                     print("Debug dir:" + dir)
                     os.chdir(dir)
+
+                    output = str(input) + ".txt"
+
+                    with open(output, "r") as file:
+                        answer = file.read()
+
+                    answerBytes = (answer).encode('utf-8')
+                    hashCheck = hashlib.sha256(answerBytes).hexdigest().encode('utf-8')
+                    conn.send(hashCheck + b' '+ answerBytes)
+                        
+                    while True:
+                        ack = conn.recv(1024)
+                        if ack != bytes([0x05]):
+                            time.sleep(2)
+                            conn.send(hashCheck + b' ' + answerBytes)
                     
-                    output = []
+                    conn.send(b'@')
+                    print('End of data sent')
 
-                    for element in Qlist:
-                        fName = str(element) + ".txt"
-                        output.append(fName)
+                    while True:
+                        end_ack = conn.recv(1024)
+                        if end_ack == bytes([0x06]):
+                            print('End of data ACK recieved')
+                            break
+                        else:
+                            print("No end of data ACK recieved yet. Retrying...")
+                            time.sleep(2)
+                            conn.send(b'@')
+                            print('End of data sent again, waiting for ACK...')
 
-                    with open("result.txt", "wb") as outfile:
-                        for f in output:
-                            with open(f, "rb") as infile:
-                                outfile.write(infile.read())
+                    conn.close()
 
-                            outfile.write("#\n")                          #each distinct question is # sperated
+                elif data == encoder("MK"):                #question marking request (per request)
 
-                        outfile.write(QList)                              #writes the Question refrence ID list to the last line of the file for TM to read             *_MAY NEED FIXING_*
-
-                    payload =                                                 #send payload "result.txt" (a text file of all question generated), NEED to serialize it (to JSON) before sending it        *_TODO_*
-                    messageBytes = payload.encode('utf-8')
-                    conn.sendall(messageBytes)
-
-                elif data == encoder("MK"):                #question marking request
-
-                    conn.sendall(data)
+                    ack = bytes([0x03])
+                    conn.sendall(ack)
 
                     spec = conn.recv(1024)
                     if not spec:
                         conn.sendall(encoder("error"))
                         break
+                    else:
+                        #ERROR CHECKING                    *_TODO_*
+                        #ERROR CHECKING                    *_TODO_*
+                        #ERROR CHECKING                    *_TODO_*
+                        #ERROR CHECKING                    *_TODO_*
+                        #ERROR CHECKING                    *_TODO_*
+
+                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
+                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
+                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
+                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
+
+                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
+                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
+                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
+                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
 
                     msg = spec.decode('utf-8')
                     input = msg.split('#')
 
                     if(int(input[1]) != 1):
-                        #need to unserealise input[0] (aka. student code) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
+                        #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
+                        #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
+                        #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
+                        #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
 
                         with open("studentA.txt", "wb") as outfile:
-                            #unserealise input[0] into this file        *_TODO_*
+                        #write input[0] into this file        *_TODO_*
+                        #write input[0] into this file        *_TODO_*
+                        #write input[0] into this file        *_TODO_*
+                        #write input[0] into this file        *_TODO_*
 
                         oldPath = os.path.realpath("studentA.txt")
 
@@ -238,23 +326,49 @@ def main(HOST, PORT):
                         output = assessor(newPath, int(input[1]), int(input[2]))
 
                     else:
-                        output = assessor(str(input[0]), int(input[1]), int(input[2]))          ##need to unserealise input[0] (aka. student code) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file
+                        output = assessor(str(input[0]), int(input[1]), int(input[2]))
 
-                    payload =                                                 #send payload "output", NEED to serialize it (to JSON) before sending it        *_TODO_*
-                    messageBytes = payload.encode('utf-8')
-                    conn.sendall(messageBytes)
+                    answerBytes = (str(output)).encode('utf-8')
+                    hashCheck = hashlib.sha256(answerBytes).hexdigest().encode('utf-8')
+                    conn.send(hashCheck + b' '+ answerBytes)
+                        
+                    while True:
+                        ack = conn.recv(1024)
+                        if ack != bytes([0x05]):
+                            time.sleep(2)
+                            conn.send(hashCheck + b' ' + answerBytes)
+                    
+                    conn.send(b'@')
+                    print('End of data sent')
 
-                elif data == encoder("DS"):              #sample answer fetching request
+                    while True:
+                        end_ack = conn.recv(1024)
+                        if end_ack == bytes([0x06]):
+                            print('End of data ACK recieved')
+                            break
+                        else:
+                            print("No end of data ACK recieved yet. Retrying...")
+                            time.sleep(2)
+                            conn.send(b'@')
+                            print('End of data sent again, waiting for ACK...')
 
-                    conn.sendall(data)
+                    conn.close()
+
+                elif data == encoder("DS"):              #sample answer fetching request (per request)
+
+                    ack = bytes([0x03])
+                    conn.sendall(ack)
 
                     spec = conn.recv(1024)
-                    if not spec:
+                    if not spec:                            #no error checking on the recived command, too expensive
                         conn.sendall(encoder("error"))
                         break
+                    else:
+                        ack = bytes([0x04])
+                        conn.sendall(ack)
 
                     msg = spec.decode('utf-8')
-                    input = msg.split('#')
+                    input = msg
 
                     # gives the path of QB
                     path = os.path.realpath(__file__)
@@ -264,22 +378,36 @@ def main(HOST, PORT):
                     print("Debug dir:" + dir)
                     os.chdir(dir)
 
-                    output = []
+                    output = str(input) + ".txt"
 
-                    for element in input:
-                        fName = str(element) + ".txt"
-                        output.append(fName)
+                    with open(output, "r") as file:                 #open up the file that contains the sample answer to that question and read it
+                        answer = file.read()
 
-                    with open("result.txt", "wb") as outfile:
-                        for f in output:
-                            with open(f, "rb") as infile:
-                                outfile.write(infile.read())
+                    answerBytes = (answer).encode('utf-8')
+                    hashCheck = hashlib.sha256(answerBytes).hexdigest().encode('utf-8')
+                    conn.send(hashCheck + b' '+ answerBytes)
+                        
+                    while True:
+                        ack = conn.recv(1024)
+                        if ack != bytes([0x05]):
+                            time.sleep(2)
+                            conn.send(hashCheck + b' ' + answerBytes)
+                    
+                    conn.send(b'@')
+                    print('End of data sent')
 
-                            outfile.write("#\n")                          #each distinct sample answer is # sperated
+                    while True:
+                        end_ack = conn.recv(1024)
+                        if end_ack == bytes([0x06]):
+                            print('End of data ACK recieved')
+                            break
+                        else:
+                            print("No end of data ACK recieved yet. Retrying...")
+                            time.sleep(2)
+                            conn.send(b'@')
+                            print('End of data sent again, waiting for ACK...')
 
-                    payload =                                                 #send payload "result.txt" (a text file of all question generated), NEED to serialize it (to JSON) before sending it        *_TODO_*
-                    messageBytes = payload.encode('utf-8')
-                    conn.sendall(messageBytes)
+                    conn.close()
 
 
 if __name__ == "__main__":
