@@ -84,6 +84,11 @@ public class Quiz {
         return this.file.getName().replace(".txt", "");
     }
 
+
+    public String getType() {
+        return type;
+    }
+
     public int totalMarks() {
         int marks = 0;
         for (int i = 0; i < questions.length; i++)
@@ -134,9 +139,4 @@ public class Quiz {
             f.close();
         }
     }
-
-    public String getType() {
-        return type;
-    }
-
 }

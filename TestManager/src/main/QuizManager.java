@@ -70,10 +70,10 @@ public class QuizManager {
                 file.close();
 
                 FileWriter quizFile = new FileWriter(f);
-                quizFile.write("type:python\n");
+                quizFile.write("type:python\n"); //Get the type of the quiz aka which QB to call
                 for (int i = 1; i <= 10; i++) {
                     quizFile.write("q" + i + ":3:0");
-                    quizFile.write(":id" + "\n");
+                    quizFile.write(":id" + "\n"); // Get the id for this specific question
                 }
                 quizFile.close();
 
