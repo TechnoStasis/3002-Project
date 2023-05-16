@@ -283,6 +283,25 @@ def main(HOST, PORT):
                         conn.sendall(encoder("error"))
                         break
                     else:
+                        print('lol')
+
+                        data = conn.recv(1024).decode('utf-8')
+                        hash_recieved, data_recieved = data.split(' ', 1)    #assuming TM will send the data in the format (hash,' ' + data)
+
+                        hash_server = hashlib.sha256(data_recieved.encode('utf-8'))
+                        hash_hex = hash_server.hexdigest()
+
+                        if hash_hex == hash_recieved:
+                            print('Data was not corrupted')
+                            spec = data_recieved
+                            data_ack = bytes([0x04])
+                            conn.sendall(data_ack)
+                        else:
+                            print('Hash mismatch for recieved data, Data may be corrupted')
+                        
+
+
+
                         #ERROR CHECKING                    *_TODO_*
                         #ERROR CHECKING                    *_TODO_*
                         #ERROR CHECKING                    *_TODO_*
@@ -309,6 +328,7 @@ def main(HOST, PORT):
                         #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
 
                         with open("studentA.txt", "wb") as outfile:
+                            outfile.write(input[0])
                         #write input[0] into this file        *_TODO_*
                         #write input[0] into this file        *_TODO_*
                         #write input[0] into this file        *_TODO_*
