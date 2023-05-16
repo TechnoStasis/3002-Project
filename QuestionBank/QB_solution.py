@@ -302,20 +302,12 @@ def main(HOST, PORT):
 
 
 
-                        #ERROR CHECKING                    *_TODO_*
-                        #ERROR CHECKING                    *_TODO_*
-                        #ERROR CHECKING                    *_TODO_*
-                        #ERROR CHECKING                    *_TODO_*
-                        #ERROR CHECKING                    *_TODO_*
+                        #ERROR CHECKING                    *_TODO_* 
+                        
 
                         #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
-                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
-                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
-                        #REMOVE HASH THAT WAS USED IN ERROR CHECKING                    *_TODO_*
+                       
 
-                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
-                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
-                        #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
                         #UPDATE THE VARIABLE "spec" WITH THE CLEANED MESSAGE VALUE                    *_TODO_*
 
                     msg = spec.decode('utf-8')
@@ -327,7 +319,7 @@ def main(HOST, PORT):
                         #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
                         #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
 
-                        with open("studentA.txt", "wb") as outfile:
+                        with open("studentA.txt", "w") as outfile:
                             outfile.write(input[0])
                         #write input[0] into this file        *_TODO_*
                         #write input[0] into this file        *_TODO_*
