@@ -31,9 +31,8 @@ public class QuizPage extends AbstractPageHandler {
             }
         }
 
-        if (!t.getRequestURI().toASCIIString().contains("?=")) 
-             redirect(t, "quiz?=1");
-        
+        if (!t.getRequestURI().toASCIIString().contains("?="))
+            redirect(t, "quiz?=1");
 
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
 
@@ -51,7 +50,7 @@ public class QuizPage extends AbstractPageHandler {
         data.put("answer", answer);
         data.put("button",
                 attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));
-
+        data.put("correctanswer", attempts > 0 ? "" : HtmlHelper.largeTextBoxTag("answer"));
         String htmlPage = HtmlHelper.render(this.htmlPage, data);
 
         t.sendResponseHeaders(200, htmlPage.length());
@@ -77,7 +76,9 @@ public class QuizPage extends AbstractPageHandler {
         InputStream io = t.getRequestBody();
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String answer = bufferedReader.readLine().split("=")[1].replace("+", " ");
+        String answer = bufferedReader.readLine();
+        if (answer.split("=").length > 0)
+            answer = answer.split("=")[1].replace("+", " ");
 
         int currentQuestion = Integer.parseInt(t.getRequestURI().toASCIIString().split("=")[1]);
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(user);

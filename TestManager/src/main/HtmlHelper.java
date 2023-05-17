@@ -76,4 +76,9 @@ public class HtmlHelper {
     public static final String boldTag(String name) {
         return "<b>" + name + "</b>";
     }
+
+    public static final String largeTextBoxTag(String content) {
+        return "<textarea id=\"answer\" name=\"answer\" rows=\"50\" cols=\"50\" style=\"width: 600px; height: 1000px;\">"
+                + content + "</textarea>";
+    }
 }
