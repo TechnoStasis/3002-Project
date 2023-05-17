@@ -19,13 +19,23 @@ public class ProtocolManager {
 
     private ProtocolManager() {
         try {
-            createListener();
+            listenForQB();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void createListener() throws IOException {
+    public void sendToQB(String qb, String message) throws IOException {
+        questionBanks.get(qb).write(ByteBuffer.wrap(message.getBytes()));
+    }
+
+    public String readFromQB(String qb) throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(256);
+        questionBanks.get(qb).read(buf);
+        return new String(buf.array()).trim();
+    }
+
+    private void listenForQB() throws IOException {
 
         // Creates new selector
         Selector selector = Selector.open();
@@ -40,18 +50,16 @@ public class ProtocolManager {
         int ops = serverSocket.validOps();
         SelectionKey selectKy = serverSocket.register(selector, ops, null);
 
-        HashMap<String, SocketChannel> questionBanks = new HashMap<>();
-        int MAX_CONNECTIONS = 1;
+        questionBanks = new HashMap<>();
+        int MAX_CONNECTIONS = 2;
 
         while (questionBanks.size() < MAX_CONNECTIONS) {
 
             System.out.println("Waiting for select...");
-            int noOfKeys = selector.select();
+            selector.select();
 
-            System.out.println("Number of selected keys: " + noOfKeys);
-
-            Set selectedKeys = selector.selectedKeys();
-            Iterator iter = selectedKeys.iterator();
+            Set<SelectionKey> selectedKeys = selector.selectedKeys();
+            Iterator<SelectionKey> iter = selectedKeys.iterator();
 
             while (iter.hasNext()) {
 
@@ -66,10 +74,10 @@ public class ProtocolManager {
                     // Add the new connection to the selector
                     client.register(selector, SelectionKey.OP_READ);
 
-                    if (questionBanks.get("Hi") == null)
-                        questionBanks.put("Hi", client);
+                    if (questionBanks.get("Python") == null)
+                        questionBanks.put("Python", client);
                     else
-                        questionBanks.put("Yo", client);
+                        questionBanks.put("C", client);
 
                     System.out.println("Accepted new connection from client: " + client);
                 }
@@ -79,9 +87,5 @@ public class ProtocolManager {
         }
 
         selector.close();
-
-        SocketChannel hi = questionBanks.get("Hi");
-        hi.configureBlocking(true);
-        hi.write(ByteBuffer.wrap("Holy".getBytes()));
     }
 }
