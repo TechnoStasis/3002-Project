@@ -19,7 +19,7 @@ public class QuizPage extends AbstractPageHandler {
     String htmlPage;
 
     public QuizPage() {
-        htmlPage = HtmlHelper.readHTML("quiz.html");
+        htmlPage = HtmlHelper.readHTML("quiz2.html");
     }
 
     @Override
