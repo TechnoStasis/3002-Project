@@ -23,9 +23,9 @@ public class SelectorClient {
  
             byte [] message = new String(messages [i]).getBytes();
             ByteBuffer buffer = ByteBuffer.wrap(message);
-            client.write(buffer);
+          //  client.write(buffer);
  
-            System.out.println(messages [i]);
+            //System.out.println(messages [i]);
             buffer.clear();
             Thread.sleep(3000);
         }
