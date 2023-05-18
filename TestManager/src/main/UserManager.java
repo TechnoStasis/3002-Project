@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import users.User;
+import main.users.User;
 
 public class UserManager {
 

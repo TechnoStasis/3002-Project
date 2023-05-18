@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import main.quiz.Quiz;
-import users.User;
+import main.users.User;
 
 public class QuizManager {
 

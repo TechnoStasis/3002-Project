@@ -12,7 +12,7 @@ import main.HtmlHelper;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
-import users.User;
+import main.users.User;
 
 public class QuizPage extends AbstractPageHandler {
 
