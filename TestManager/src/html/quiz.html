@@ -4,6 +4,7 @@
     <style>
         * {
             font-family: Arial, Helvetica, sans-serif;
+            white-space: pre-line;
         }
 
         .question {
@@ -24,10 +25,13 @@
         }
 
         textarea {
-            display: block;
             margin-left: auto;
             margin-right: auto;
         }
+
+        .input-field-div{
+   display:inline-block; 
+}
     </style>
 
 
@@ -59,15 +63,19 @@
             <p><b> Attempts Remaining:</b> {{attempts}} </p>
             <p>
                 {{button}}
+                {{finish}}
             </p>
-            <p> {{questionID}}</p>
         </div>
 
         <p>
             <label for="answer"><b>Answer Below</b></label>
         </p>
-        <textarea id="answer" name="answer" rows="50" cols="50" style="width: 600px; height: 1000px;">{{answer}}</textarea>
-        {{correctanswer}}
+        <div class="textAreaColumn">
+            <div class="input-field-div">
+            <textarea id="answer" name="answer" rows="25" cols="25" style="width: 500px; height: 500px;">{{answer}}</textarea>
+            <div class="input-field-div">{{correctanswer}}</div>
+        </div>
+        </div>
     </div>
 </form>
 

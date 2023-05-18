@@ -11,7 +11,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import main.HtmlHelper;
 import main.UserManager;
-import users.User;
+import main.users.User;
 
 public class RegisterPage extends AbstractPageHandler {
 

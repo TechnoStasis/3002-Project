@@ -4,22 +4,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
 import main.HtmlHelper;
+import main.ProtocolMethods;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
-import users.User;
+import main.users.User;
 
 public class QuizPage extends AbstractPageHandler {
 
     String htmlPage;
 
     public QuizPage() {
-        htmlPage = HtmlHelper.readHTML("quiz2.html");
+        htmlPage = HtmlHelper.readHTML("quiz.html");
     }
 
     @Override
@@ -40,17 +42,34 @@ public class QuizPage extends AbstractPageHandler {
         int cQ = Integer.parseInt(currentQuestion);
         int attempts = q.getNumberOfAttempts(cQ);
         String id = q.getQuestionId(cQ);
-
         String answer = q.getAnswer(cQ);
+        String quizType = q.getType();
+        boolean correct = q.getCorrect(cQ);
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
-        data.put("questionID", id.toUpperCase());
+        String questionText = ProtocolMethods.getQuestion(quizType, Integer.parseInt(id), "TXT");
+
+        if (!correct && attempts <= 0)
+            questionText = HtmlHelper.appendError(questionText);
+
+        data.put("question", questionText);
         data.put("answer", answer);
-        data.put("button",
-                attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));
-        data.put("correctanswer", attempts > 0 ? "" : HtmlHelper.largeTextBoxTag("answer"));
+        if (!correct)
+            data.put("button",
+                    attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));
+        else
+            data.put("button", HtmlHelper.appendGreen("You got it right!"));
+
+        if (correct || attempts <= 0) {
+            String correctAnswer = ProtocolMethods.getQuestion(quizType, Integer.parseInt(id), "DS");
+            data.put("correctanswer", HtmlHelper.largeTextBoxTag(correctAnswer));
+        } else
+            data.put("correctanswer", "");
+
+        data.put("finish", HtmlHelper.createSubmitButton("finish", "Finish and Submit"));
+
         String htmlPage = HtmlHelper.render(this.htmlPage, data);
 
         t.sendResponseHeaders(200, htmlPage.length());
@@ -77,19 +96,37 @@ public class QuizPage extends AbstractPageHandler {
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String answer = bufferedReader.readLine();
-        if (answer.split("=").length > 0)
-            answer = answer.split("=")[1].replace("+", " ");
+
+        if (answer.contains("finish=")) {
+            QuizManager.INSTANCE.removeActiveQuiz(user);
+            redirect(t, "profile");
+
+            return;
+        }
+
+        if (answer.contains("answer=") && answer.split("answer=").length > 1)
+            answer = java.net.URLDecoder.decode(answer.split("answer=")[1], StandardCharsets.UTF_8.name());
+        else
+            answer = "";
 
         int currentQuestion = Integer.parseInt(t.getRequestURI().toASCIIString().split("=")[1]);
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(user);
-
+        int qid = Integer.parseInt(q.getQuestionId(currentQuestion));
         q.setAnswer(currentQuestion, answer);
 
-        // QUIZ BANK COMMUNICATION
+        String quizType = q.getType();
 
-        int attempts = q.getNumberOfAttempts(currentQuestion);
+        int type = (currentQuestion == 10 ? (q.getType().equals("P") ? 3 : 2) : 1);
+        boolean correctness = Boolean.parseBoolean(ProtocolMethods.markQuestion(quizType, answer, qid, type));
 
-        q.setNumberOfAttempts(currentQuestion, attempts - 1);
+        if (!correctness) {
+            int attempts = q.getNumberOfAttempts(currentQuestion);
+            q.setNumberOfAttempts(currentQuestion, attempts - 1);
+            q.setIncorrect(currentQuestion);
+        } else {
+            q.setCorrect(currentQuestion);
+        }
+
         q.save();
 
         redirect(t, t.getRequestURI().toString());

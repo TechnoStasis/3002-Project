@@ -1,0 +1,3 @@
+Question: What is Python?
+
+A. language  B. object  C. stuff

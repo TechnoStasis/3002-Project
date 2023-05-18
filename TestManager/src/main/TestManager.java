@@ -3,6 +3,7 @@ package main;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -17,10 +18,14 @@ import main.page.RegisterPage;
 
 public class TestManager {
 
-	public static final String MASTER_PATH = TestManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	public static final String MASTER_PATH = TestManager.class.getProtectionDomain().getCodeSource().getLocation()
+			.getPath();
+
+	public static final HashMap<String, Pair> accessPoints = new HashMap();
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
+		s.createContext("/", new LoginPage());
 		s.createContext("/logout", new AbstractPageHandler() {
 
 			@Override
@@ -54,6 +59,17 @@ public class TestManager {
 
 	public static void main(String[] args) {
 
+		if (args.length != 2) {
+			System.out.println("Must provide 2 ip addresses for the Python and the C QB!");
+			return;
+		}
+
+		String pythonAddress = args[0];
+		String cAddress = args[1];
+
+		accessPoints.put("P", new Pair(pythonAddress.split(":")[0], pythonAddress.split(":")[1]));
+		accessPoints.put("C", new Pair(cAddress.split(":")[0], cAddress.split(":")[1]));
+	
 		try {
 			InetSocketAddress a = new InetSocketAddress("localhost", 8081);
 
@@ -65,9 +81,26 @@ public class TestManager {
 			server.start();
 			System.out.println("Starting server at " + a.getHostName() + ":" + a.getPort());
 
+			accessPoints.put("Python", new Pair("localhost", "3000"));
+
 		} catch (Exception e) {
 			System.out.println("Failed to initialize server");
 			e.printStackTrace();
 		}
 	}
+
+	static class Pair {
+		String left, right;
+
+		public Pair(String a, String b) {
+			left = a;
+			right = b;
+		}
+
+		@Override
+		public String toString() {
+			return left + ":" + right;
+		}
+	}
+
 }
