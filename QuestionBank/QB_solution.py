@@ -441,10 +441,8 @@ def main(HOST, PORT):
 if __name__ == "__main__":
     print("Arguments count: " + str(len(sys.argv)))
     if len(sys.argv) == 3:
-
-        main("192.168.0.17", 3000)
-       # sys.exit(0)
-
+        main(str(sys.argv[1]),int(sys.argv[2]))
+        sys.exit(0)
     else:
         print("Illegal arguments")
-        #sys.exit(1)
+        sys.exit(1)
