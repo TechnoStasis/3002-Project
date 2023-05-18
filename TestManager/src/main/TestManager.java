@@ -3,6 +3,7 @@ package main;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -17,7 +18,10 @@ import main.page.RegisterPage;
 
 public class TestManager {
 
-	public static final String MASTER_PATH = TestManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	public static final String MASTER_PATH = TestManager.class.getProtectionDomain().getCodeSource().getLocation()
+			.getPath();
+
+	public static final HashMap<String, Pair> accessPoints = new HashMap();
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
@@ -65,6 +69,8 @@ public class TestManager {
 			server.start();
 			System.out.println("Starting server at " + a.getHostName() + ":" + a.getPort());
 
+			accessPoints.put("Python", new Pair("localhost", "3000"));
+
 			ProtocolMethods.Mark_Question("localhost", 3000, "blah blah", 7, 9);
 
 		} catch (Exception e) {
@@ -72,4 +78,14 @@ public class TestManager {
 			e.printStackTrace();
 		}
 	}
+
+	static class Pair {
+		String left, right;
+
+		public Pair(String a, String b) {
+			left = a;
+			right = b;
+		}
+	}
+
 }
