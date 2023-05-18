@@ -198,6 +198,7 @@ import java.io.IOException;
             }
     
             String command = answer + "#" + q_id + "#" + q_type;
+            System.out.println(command);
             byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
     
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -208,8 +209,15 @@ import java.io.IOException;
             System.arraycopy(hashCheck, 0, payload, 0, hashCheck.length);
             payload[hashCheck.length] = ' ';
             System.arraycopy(commandBytes, 0, payload, hashCheck.length + 1, commandBytes.length);
+
+            //Debugging
+         //   String payloadString = new String(payload, StandardCharsets.UTF_8);
+          //  System.out.println(payloadString);
+            
     
             outputStream.write(payload);
+            outputStream.flush();
+            System.out.println(payload);
             System.out.println("SEnt payload already");
     
             boolean acknowledged = false;
@@ -260,6 +268,7 @@ import java.io.IOException;
                         byte[] endDataAck = {0x06};
                         outputStream.write(endDataAck);
                         System.out.println("Ack sent for end of data");
+                        break; //have to break outta loop
                         }
                 }
     
@@ -277,6 +286,7 @@ import java.io.IOException;
     
         return null;
     }
+
 
 
 
