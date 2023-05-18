@@ -25,6 +25,7 @@ public class TestManager {
 
 	private static void registerContext(HttpServer s) {
 		s.createContext("/login", new LoginPage());
+		s.createContext("/", new LoginPage());
 		s.createContext("/logout", new AbstractPageHandler() {
 
 			@Override
@@ -58,6 +59,17 @@ public class TestManager {
 
 	public static void main(String[] args) {
 
+		if (args.length != 2) {
+			System.out.println("Must provide 2 ip addresses for the Python and the C QB!");
+			return;
+		}
+
+		String pythonAddress = args[0];
+		String cAddress = args[1];
+
+		accessPoints.put("P", new Pair(pythonAddress.split(":")[0], pythonAddress.split(":")[1]));
+		accessPoints.put("C", new Pair(cAddress.split(":")[0], cAddress.split(":")[1]));
+	
 		try {
 			InetSocketAddress a = new InetSocketAddress("localhost", 8081);
 
@@ -71,8 +83,6 @@ public class TestManager {
 
 			accessPoints.put("Python", new Pair("localhost", "3000"));
 
-			//Object o = ProtocolMethods.markQuestion("localhost", 3000, "blah blah", 23, 3);
-			//System.out.println(o);
 		} catch (Exception e) {
 			System.out.println("Failed to initialize server");
 			e.printStackTrace();
@@ -85,6 +95,11 @@ public class TestManager {
 		public Pair(String a, String b) {
 			left = a;
 			right = b;
+		}
+
+		@Override
+		public String toString() {
+			return left + ":" + right;
 		}
 	}
 

@@ -46,7 +46,7 @@ public class Quiz {
 
         f.write("type:" + type + "\n");
         for (int i = 0; i < questions.length; i++) {
-            f.write("q" + (i + 1) + ":" + questions[i].attemptsLeft + ":" + (questions[i].correct ? 0 : 1));
+            f.write("q" + (i + 1) + ":" + questions[i].attemptsLeft + ":" + (questions[i].correct ? 1 : 0));
             f.write(":" + questions[i].id + "\n");
             questions[i].save();
         }
@@ -72,6 +72,18 @@ public class Quiz {
         return questions[question - 1].attemptsLeft;
     }
 
+    public boolean getCorrect(int question) {
+        return questions[question - 1].correct;
+    }
+
+    public void setCorrect(int question) {
+        questions[question - 1].correct = true;
+    }
+
+    public void setIncorrect(int question) {
+        questions[question - 1].correct = false;
+    }
+
     public void setAnswer(int question, String answer) {
         questions[question - 1].answer = answer;
     }
@@ -83,7 +95,6 @@ public class Quiz {
     public String getPath() {
         return this.file.getName().replace(".txt", "");
     }
-
 
     public String getType() {
         return type;
@@ -117,7 +128,7 @@ public class Quiz {
                 try (BufferedReader br = new BufferedReader(new FileReader(questionPath))) {
                     String line;
                     while (((line = br.readLine()) != null)) {
-                        answer = answer + line;
+                        answer = answer + "\n" + line;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -135,6 +146,8 @@ public class Quiz {
 
         public void save() throws IOException {
             FileWriter f = new FileWriter(questionPath);
+            String newLineChar = System.getProperty("line.separator");
+            answer = answer.replace("\n", newLineChar);
             f.write(answer);
             f.close();
         }

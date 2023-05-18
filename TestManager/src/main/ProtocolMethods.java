@@ -1,12 +1,14 @@
 package main;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.io.IOException;
+
+import main.TestManager.Pair;
 
 public class ProtocolMethods {
 
@@ -14,15 +16,20 @@ public class ProtocolMethods {
      * 
      * @param serverHostname
      * @param serverPort
-     * @param questionNumber 
-     * @param language C for C, P for Python
+     * @param questionNumber
+     * @param language       C for C, P for Python
      * @return
      */
-    public static int[] getQuestionIds(String serverHostname, int serverPort, int questionNumber, String language) {
+    public static int[] getQuestionIds(String qb, int questionNumber, String language) {
+
+        Pair address = TestManager.accessPoints.get(qb);
+        String serverHostname = address.left;
+        int serverPort = Integer.parseInt(address.right);
+
         try (Socket clientSocket = new Socket(serverHostname, serverPort);
                 InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
-            System.out.println("Connected to server: " + clientSocket); // Debugging line
+            // System.out.println("Connected to server: " + clientSocket); // Debugging line
 
             // When sending QF Request
             String request = "QF";
@@ -47,7 +54,7 @@ public class ProtocolMethods {
                         String calculatedHash = bytesToHex(encodedHash);
 
                         if (calculatedHash.equals(receivedHash)) {
-                            System.out.println("Nice, it was the correct hash, correct data");
+                            // System.out.println("Nice, it was the correct hash, correct data");
                             byte[] dataAck = { 0x04 };
                             outputStream.write(dataAck);
                             System.out.println("ACK sent for data");
@@ -93,13 +100,17 @@ public class ProtocolMethods {
 
     /**
      * 
-     * @param serverHostname 
+     * @param serverHostname
      * @param serverPort
      * @param question_number
-     * @param Option TXT or DS, whether it's an answer or the text description of the question
+     * @param Option          TXT or DS, whether it's an answer or the text
+     *                        description of the question
      * @return
      */
-    public static String getQuestion(String serverHostname, int serverPort, int question_number, String Option) {
+    public static String getQuestion(String qb, int question_number, String Option) {
+        Pair address = TestManager.accessPoints.get(qb);
+        String serverHostname = address.left;
+        int serverPort = Integer.parseInt(address.right);
         try (Socket clientSocket = new Socket(serverHostname, serverPort);
                 InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
@@ -112,7 +123,8 @@ public class ProtocolMethods {
                 outputStream.write(Option.getBytes());
                 inputStream.read(ack);
                 if (ack[0] != 0x03) {
-                    System.out.println("Acknowledgement for TXT request not received, re-sending");
+                    // System.out.println("Acknowledgement for TXT request not received,
+                    // re-sending");
                     return null;
                 }
             }
@@ -121,10 +133,11 @@ public class ProtocolMethods {
             outputStream.write(q_id.getBytes());
             inputStream.read(ack);
             if (ack[0] != 0x04) {
-                System.out.println("Acknowledgement for question number request not received");
+                // System.out.println("Acknowledgement for question number request not
+                // received");
                 return null;
             } else {
-                System.out.println("Acknowledgement for question number request received");
+                // System.out.println("Acknowledgement for question number request received");
             }
 
             // int bufferSize = 1024;
@@ -155,7 +168,7 @@ public class ProtocolMethods {
             String calculatedHash = bytesToHex(encodedHash);
 
             if (calculatedHash.equals(receivedHash)) {
-                System.out.println("Nice it was the correct hash, correct data");
+                // System.out.println("Nice it was the correct hash, correct data");
                 outputStream.write(new byte[] { 0x05 });
 
                 int receivedChar;
@@ -164,7 +177,7 @@ public class ProtocolMethods {
                     if (character == '@') {
                         byte[] endDataAck = { 0x06 };
                         outputStream.write(endDataAck);
-                        System.out.println("Ack sent for end of data");
+                        // System.out.println("Ack sent for end of data");
                     }
                 }
 
@@ -201,17 +214,14 @@ public class ProtocolMethods {
      * @param serverPort
      * @param answer
      * @param q_id
-     * @param q_type 2 = C 3 = python
-     * @return
+     * @param q_type         2 = C 3 = python
+     * @return True if it's a correct answer or False if not
      */
-    public static String markQuestion(String serverHostname, int serverPort, String answer, int q_id, int q_type) { // WHen
-                                                                                                                     // wanting
-                                                                                                                     // True
-                                                                                                                     // or
-                                                                                                                     // False
-                                                                                                                     // for
-                                                                                                                     // question
-                                                                                                                     // mark
+    public static String markQuestion(String qb, String answer, int q_id, int q_type) {
+        Pair address = TestManager.accessPoints.get(qb);
+        String serverHostname = address.left;
+        int serverPort = Integer.parseInt(address.right);
+
         try (Socket clientSocket = new Socket(serverHostname, serverPort);
                 InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
@@ -225,7 +235,7 @@ public class ProtocolMethods {
             }
 
             String command = answer + "#" + q_type + "#" + q_id;
-            System.out.println(command);
+            // System.out.println(command);
             byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -243,18 +253,18 @@ public class ProtocolMethods {
 
             outputStream.write(payload);
             outputStream.flush();
-            System.out.println(payload);
-            System.out.println("SEnt payload already");
+            // System.out.println(payload);
+            // System.out.println("SEnt payload already");
 
             boolean acknowledged = false;
             while (!acknowledged) {
                 inputStream.read(ack);
                 if (ack[0] == 0x04) {
-                    System.out.println("Payload acknowledged");
+                    // System.out.println("Payload acknowledged");
                     acknowledged = true;
                 } else {
                     Thread.sleep(2000);
-                    System.out.println("Acknowledgement for payload not received, re-sending");
+                    // System.out.println("Acknowledgement for payload not received, re-sending");
                     outputStream.write(payload);
                 }
             }
@@ -274,7 +284,7 @@ public class ProtocolMethods {
             int bytesRead = inputStream.read(buffer);
             String receivedMessage = new String(buffer, 0, bytesRead);
 
-            System.out.println("THis is where it is stuck?");
+            // System.out.println("THis is where it is stuck?");
             String[] splitData = receivedMessage.toString().split(" ", 2);
             String receivedHash = splitData[0];
             String receivedQuestion = splitData[1];
@@ -282,10 +292,10 @@ public class ProtocolMethods {
             MessageDigest recieved_digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedHash = recieved_digest.digest(receivedQuestion.getBytes(StandardCharsets.UTF_8));
             String calculatedHash = bytesToHex(encodedHash);
-            System.out.println("Got to just before calculating the hash");
+            // System.out.println("Got to just before calculating the hash");
 
             if (calculatedHash.equals(receivedHash)) {
-                System.out.println("Nice it was the correct hash, correct data");
+                // System.out.println("Nice it was the correct hash, correct data");
                 outputStream.write(new byte[] { 0x05 });
 
                 int receivedChar;
@@ -294,7 +304,7 @@ public class ProtocolMethods {
                     if (character == '@') {
                         byte[] endDataAck = { 0x06 };
                         outputStream.write(endDataAck);
-                        System.out.println("Ack sent for end of data");
+                        // System.out.println("Ack sent for end of data");
                         break; // have to break outta loop
                     }
                 }

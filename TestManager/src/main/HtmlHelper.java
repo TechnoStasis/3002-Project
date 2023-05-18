@@ -3,7 +3,6 @@ package main;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +84,11 @@ public class HtmlHelper {
     }
 
     public static final String largeTextBoxTag(String content) {
-        return "<textarea id=\"answer\" name=\"answer\" rows=\"50\" cols=\"50\" style=\"width: 600px; height: 1000px;\">"
+        return "<textarea id=\"answer\" name=\"answer\" rows=\"25\" cols=\"25\" style=\"width: 500px; height: 500px;\">"
                 + content + "</textarea>";
+    }
+
+    public static Object appendGreen(String line) {
+        return "<FONT COLOR=\"GREEN\">" + line + "</FONT>";
     }
 }
