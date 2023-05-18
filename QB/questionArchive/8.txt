@@ -1,0 +1,3 @@
+Question: Why are there 7 layers in the OSI model?
+
+A. For transportation  B. For distinct functions  C. For security

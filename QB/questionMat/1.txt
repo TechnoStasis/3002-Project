@@ -1,0 +1,3 @@
+Question: What is a null pointer exception?
+
+A. An error

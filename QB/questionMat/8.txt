@@ -1,0 +1,3 @@
+Question: Why are there 7 layers in the OSI model?
+
+B. For distinct functions

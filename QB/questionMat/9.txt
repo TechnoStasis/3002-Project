@@ -1,0 +1,10 @@
+Question: What is the output of this code below
+
+int x = 1;
+for(int a = 0; a < 2; a++){
+	for(int b = 0; b < 2; b++){
+		x++;
+	}
+}
+
+C. 5

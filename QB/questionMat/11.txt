@@ -1,0 +1,3 @@
+Question: In a stop and wait protocal, how many while loops does it take at least?
+
+B. 2

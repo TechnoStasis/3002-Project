@@ -1,0 +1,3 @@
+Question: What is an ICMP packet used for?
+
+C. Error messaging
