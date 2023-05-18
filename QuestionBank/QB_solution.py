@@ -441,8 +441,8 @@ def main(HOST, PORT):
 if __name__ == "__main__":
     print("Arguments count: " + str(len(sys.argv)))
     if len(sys.argv) == 3:
-        main(str(sys.argv[1]),int(sys.argv[2]))
+        main(str(sys.argv[1]), int(sys.argv[2]))
         sys.exit(0)
     else:
-        print("Illegal arguments")
+        print("Illegal Arguments")
         sys.exit(1)
