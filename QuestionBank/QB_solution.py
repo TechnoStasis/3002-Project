@@ -114,7 +114,7 @@ def assessor(AInput, QType, QRef):                                             #
     path = os.path.realpath(__file__)
     # gives the directory
     dir = os.path.dirname(path)
-    dir = dir.replace("src", "questionArchive")
+    dir = dir.replace("src", "questionMat")
     print("Debug dir:" + dir)
     os.chdir(dir)
 
@@ -130,8 +130,9 @@ def assessor(AInput, QType, QRef):                                             #
     elif QType == 2:
         ##get the standard answer C
         print("Debug dir2:" + os.path.realpath(AInput))
+        QRefT = "A" + str(QRef).strip() + ".c"
         usrOpt = compileAndExecutionC(AInput, os.path.realpath(AInput)).strip()
-        opt = compileAndExecutionC(QRef, os.path.realpath(QRef)).strip()
+        opt = compileAndExecutionC(QRefT, os.path.realpath(QRefT)).strip()
 
         print("Debug ans: " + usrOpt + "  " + opt)
 
@@ -143,8 +144,9 @@ def assessor(AInput, QType, QRef):                                             #
     elif QType == 3:
         ##get the standard answer Python
         print("Debug dir3:" + os.path.realpath(AInput))
+        QRefT = "A" + str(QRef).strip() + ".py"
         usrOpt = compileAndExecutionPY(AInput, os.path.realpath(AInput)).strip()
-        opt = compileAndExecutionPY(QRef, os.path.realpath(QRef)).strip()
+        opt = compileAndExecutionPY(QRefT, os.path.realpath(QRefT)).strip()
 
         if usrOpt == opt:
             return True
