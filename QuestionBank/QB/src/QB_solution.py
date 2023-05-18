@@ -114,7 +114,7 @@ def assessor(AInput, QType, QRef):                                             #
     path = os.path.realpath(__file__)
     # gives the directory
     dir = os.path.dirname(path)
-    dir = dir.replace("src", "questionArchive")
+    dir = dir.replace("src", "questionMat")
     print("Debug dir:" + dir)
     os.chdir(dir)
 
@@ -130,8 +130,9 @@ def assessor(AInput, QType, QRef):                                             #
     elif QType == 2:
         ##get the standard answer C
         print("Debug dir2:" + os.path.realpath(AInput))
+        QRefT = "A" + str(QRef).strip() + ".c"
         usrOpt = compileAndExecutionC(AInput, os.path.realpath(AInput)).strip()
-        opt = compileAndExecutionC(QRef, os.path.realpath(QRef)).strip()
+        opt = compileAndExecutionC(QRefT, os.path.realpath(QRefT)).strip()
 
         print("Debug ans: " + usrOpt + "  " + opt)
 
@@ -143,8 +144,9 @@ def assessor(AInput, QType, QRef):                                             #
     elif QType == 3:
         ##get the standard answer Python
         print("Debug dir3:" + os.path.realpath(AInput))
+        QRefT = "A" + str(QRef).strip() + ".py"
         usrOpt = compileAndExecutionPY(AInput, os.path.realpath(AInput)).strip()
-        opt = compileAndExecutionPY(QRef, os.path.realpath(QRef)).strip()
+        opt = compileAndExecutionPY(QRefT, os.path.realpath(QRefT)).strip()
 
         if usrOpt == opt:
             return True
@@ -282,6 +284,8 @@ def main(HOST, PORT):
 
                 elif data == encoder("MK"):                #question marking request (per request)
 
+                
+
                     ack = bytes([0x03])
                     conn.sendall(ack)
 
@@ -339,14 +343,17 @@ def main(HOST, PORT):
                         #write input[0] into this file        *_TODO_*
 
                         oldPath = os.path.realpath("studentA.txt")
-
-                        if input[1] == 2:
+                        print(oldPath)
+                     
+                        if int (input[1]) ==  2:
                             newPath = str(os.path.realpath("studentA.txt"))[:-4] + ".c"
                             os.rename(oldPath, newPath)
-                        elif input[1] == 3:
+                        elif int (input[1]) == 3:
                             newPath = str(os.path.realpath("studentA.txt"))[:-4] + ".py"
                             os.rename(oldPath, newPath)
-
+                    
+                        print(input[1])
+                    
                         output = assessor(newPath, int(input[1]), int(input[2]))
 
                     else:
@@ -441,8 +448,8 @@ def main(HOST, PORT):
 if __name__ == "__main__":
     print("Arguments count: " + str(len(sys.argv)))
     if len(sys.argv) == 3:
-        main(str(sys.argv[1]),int(sys.argv[2]))
+        main(str(sys.argv[1]), int(sys.argv[2]))
         sys.exit(0)
     else:
-        print("Illegal arguments")
+        print("Illegal Arguments")
         sys.exit(1)

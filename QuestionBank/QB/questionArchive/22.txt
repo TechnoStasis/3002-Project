@@ -1,0 +1,1 @@
+Quetions: Write a Python program that calculates the factorial of 6.

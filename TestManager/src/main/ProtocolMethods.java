@@ -203,7 +203,7 @@ public class ProtocolMethods {
                 return null;
             }
 
-            String command = answer + "#" + q_id + "#" + q_type;
+            String command = answer + "#" + q_type + "#" + q_id;
             System.out.println(command);
             byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
 
