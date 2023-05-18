@@ -59,15 +59,15 @@
             <p><b> Attempts Remaining:</b> {{attempts}} </p>
             <p>
                 {{button}}
-             </p> <p> {{questionID}}</p>
+            </p>
+            <p> {{questionID}}</p>
         </div>
 
         <p>
             <label for="answer"><b>Answer Below</b></label>
         </p>
-        <textarea id="answer" name="answer" rows="50" cols="50" style="width: 600px; height: 1000px;">
-         </textarea>
-        
+        <textarea id="answer" name="answer" rows="50" cols="50" style="width: 600px; height: 1000px;">{{answer}}</textarea>
+        {{correctanswer}}
     </div>
 </form>
 

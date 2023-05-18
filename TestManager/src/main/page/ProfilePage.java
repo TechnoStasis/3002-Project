@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.HtmlRenderer;
+import main.HtmlHelper;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
@@ -16,14 +16,14 @@ public class ProfilePage extends AbstractPageHandler {
   private final String htmlPage;
 
   public ProfilePage() {
-    htmlPage = HtmlRenderer.readHTML("profile.html");
+    htmlPage = HtmlHelper.readHTML("profile.html");
   }
 
   @Override
   public void handleGet(HttpExchange t) throws IOException {
     String user = "";
     String password = "";
-    ArrayList<String> redirect = new ArrayList<>();
+
     if (t.getRequestHeaders().get("Cookie") != null) {
       for (String str : t.getRequestHeaders().get("Cookie")) {
         user = str.split("=")[1].split(":")[0];
@@ -31,19 +31,11 @@ public class ProfilePage extends AbstractPageHandler {
       }
     }
 
-    if (!UserManager.INSTANCE.validate(user, password)) {
-      redirect.add("logout");
-      t.getResponseHeaders().put("Location", redirect);
-      t.sendResponseHeaders(302, -1);
-      t.close();
-    }
+    if (!UserManager.INSTANCE.validate(user, password))
+      redirect(t, "logout");
 
-    if (user.isEmpty()) {
-      redirect.add("login");
-      t.getResponseHeaders().put("Location", redirect);
-      t.sendResponseHeaders(302, -1);
-      t.close();
-    }
+    if (user.isEmpty())
+      redirect(t, "login");
 
     HashMap<String, Object> dataToHTML = new HashMap<String, Object>();
     dataToHTML.put("username", user);
@@ -51,16 +43,18 @@ public class ProfilePage extends AbstractPageHandler {
     String pastQuizzes = "";
     ArrayList<Quiz> past = QuizManager.INSTANCE.getPastQuizzes(UserManager.INSTANCE.getUser(user));
     for (Quiz q : past)
-      pastQuizzes = pastQuizzes + "<p>" + "<b>" + q.getType().toUpperCase() + "</b> " + q.getPath().replace("T", " ")
-          + " <b> Marks: " + q.totalMarks() + "/30 </b>" + "</p>";
+      pastQuizzes = pastQuizzes
+          + HtmlHelper
+              .paragraphTag(HtmlHelper.boldTag(q.getType().toUpperCase() + " ") + q.getPath().replace("T", " ")
+                  + HtmlHelper.boldTag(" Marks: " + q.totalMarks() + "/30"));
 
     dataToHTML.put("pastquizzes", pastQuizzes);
     dataToHTML.put("button",
-        HtmlRenderer.createButton(
+        HtmlHelper.createButton(
             QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) != null ? "Continue Quiz"
                 : "Start New Quiz"));
 
-    String htmlPage = HtmlRenderer.render(this.htmlPage, dataToHTML);
+    String htmlPage = HtmlHelper.render(this.htmlPage, dataToHTML);
 
     t.sendResponseHeaders(200, htmlPage.length());
     t.getResponseBody().write(htmlPage.getBytes());
@@ -79,12 +73,7 @@ public class ProfilePage extends AbstractPageHandler {
     if (QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) == null)
       QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
 
-    ArrayList<String> redirect = new ArrayList<>();
-
-    redirect.add("quiz");
-    t.getResponseHeaders().put("Location", redirect);
-    t.sendResponseHeaders(302, -1);
-
+    redirect(t, "quiz");
   }
 
 }

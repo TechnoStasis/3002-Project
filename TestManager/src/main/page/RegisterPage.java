@@ -5,12 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.HtmlRenderer;
+import main.HtmlHelper;
 import main.UserManager;
 import users.User;
 
@@ -19,7 +18,7 @@ public class RegisterPage extends AbstractPageHandler {
     String htmlPage;
 
     public RegisterPage() {
-        htmlPage = HtmlRenderer.readHTML("register.html");
+        htmlPage = HtmlHelper.readHTML("register.html");
     }
 
     @Override
@@ -27,7 +26,7 @@ public class RegisterPage extends AbstractPageHandler {
         OutputStream io = t.getResponseBody();
         HashMap<String, Object> hiddenError = new HashMap<>();
         hiddenError.put("error", "");
-        String htmlRender = HtmlRenderer.render(htmlPage, hiddenError);
+        String htmlRender = HtmlHelper.render(htmlPage, hiddenError);
         t.sendResponseHeaders(200, htmlRender.length());
         io.write(htmlRender.getBytes());
         io.close();
@@ -49,8 +48,8 @@ public class RegisterPage extends AbstractPageHandler {
         if(!password.equals(confirm)) {
             OutputStream os = t.getResponseBody();
             HashMap<String, Object> error = new HashMap<>();
-            error.put("error", HtmlRenderer.appendError("Passwords don't match!"));
-            String htmlRender = HtmlRenderer.render(htmlPage, error);
+            error.put("error", HtmlHelper.appendError("Passwords don't match!"));
+            String htmlRender = HtmlHelper.render(htmlPage, error);
             t.sendResponseHeaders(200, htmlRender.length());
             os.write(htmlRender.getBytes());
             os.close();
@@ -61,8 +60,8 @@ public class RegisterPage extends AbstractPageHandler {
         if (UserManager.INSTANCE.validate(username, password)) {
             OutputStream os = t.getResponseBody();
             HashMap<String, Object> error = new HashMap<>();
-            error.put("error", HtmlRenderer.appendError("User already exists!"));
-            String htmlRender = HtmlRenderer.render(htmlPage, error);
+            error.put("error", HtmlHelper.appendError("User already exists!"));
+            String htmlRender = HtmlHelper.render(htmlPage, error);
             t.sendResponseHeaders(200, htmlRender.length());
             os.write(htmlRender.getBytes());
             os.close();
@@ -71,11 +70,8 @@ public class RegisterPage extends AbstractPageHandler {
         }
 
         UserManager.INSTANCE.registerUser(new User(username, password));
-        ArrayList<String> redir = new ArrayList<>();
-        redir.add("login");
-        t.getResponseHeaders().put("Location", redir);
-        t.sendResponseHeaders(302, -1);
-        t.close();
+        
+        redirect(t, "login");
     }
 
 }

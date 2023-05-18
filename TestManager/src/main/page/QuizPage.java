@@ -4,12 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import main.HtmlRenderer;
+import main.HtmlHelper;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
@@ -20,7 +19,7 @@ public class QuizPage extends AbstractPageHandler {
     String htmlPage;
 
     public QuizPage() {
-        htmlPage = HtmlRenderer.readHTML("quiz.html");
+        htmlPage = HtmlHelper.readHTML("quiz2.html");
     }
 
     @Override
@@ -32,13 +31,8 @@ public class QuizPage extends AbstractPageHandler {
             }
         }
 
-        if (!t.getRequestURI().toASCIIString().contains("?=")) {
-            ArrayList<String> redir = new ArrayList<>();
-            redir.add("quiz?=1");
-            t.getResponseHeaders().put("Location", redir);
-            t.sendResponseHeaders(302, -1);
-            t.close();
-        }
+        if (!t.getRequestURI().toASCIIString().contains("?="))
+            redirect(t, "quiz?=1");
 
         String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
 
@@ -47,14 +41,17 @@ public class QuizPage extends AbstractPageHandler {
         int attempts = q.getNumberOfAttempts(cQ);
         String id = q.getQuestionId(cQ);
 
+        String answer = q.getAnswer(cQ);
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
         data.put("questionID", id.toUpperCase());
+        data.put("answer", answer);
         data.put("button",
-                attempts > 0 ? HtmlRenderer.createButton("Submit") : HtmlRenderer.appendError("No More Attempts"));
-
-        String htmlPage = HtmlRenderer.render(this.htmlPage, data);
+                attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));
+        data.put("correctanswer", attempts > 0 ? "" : HtmlHelper.largeTextBoxTag("answer"));
+        String htmlPage = HtmlHelper.render(this.htmlPage, data);
 
         t.sendResponseHeaders(200, htmlPage.length());
         t.getResponseBody().write(htmlPage.getBytes());
@@ -79,24 +76,22 @@ public class QuizPage extends AbstractPageHandler {
         InputStream io = t.getRequestBody();
         InputStreamReader inputStreamReader = new InputStreamReader(io);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String answer = bufferedReader.readLine().replace("+", " ");
+        String answer = bufferedReader.readLine();
+        if (answer.split("=").length > 0)
+            answer = answer.split("=")[1].replace("+", " ");
 
-
-        String currentQuestion = t.getRequestURI().toASCIIString().split("=")[1];
-        int currQ = Integer.parseInt(currentQuestion);
+        int currentQuestion = Integer.parseInt(t.getRequestURI().toASCIIString().split("=")[1]);
         Quiz q = QuizManager.INSTANCE.getCurrentQuiz(user);
+
+        q.setAnswer(currentQuestion, answer);
 
         // QUIZ BANK COMMUNICATION
 
-        int attempts = q.getNumberOfAttempts(currQ);
+        int attempts = q.getNumberOfAttempts(currentQuestion);
 
-        q.setNumberOfAttempts(currQ, attempts - 1);
+        q.setNumberOfAttempts(currentQuestion, attempts - 1);
         q.save();
-        
-        ArrayList<String> redirect = new ArrayList<>();
-        redirect.add(t.getRequestURI().toString());
-        t.getResponseHeaders().put("Location", redirect);
-        t.sendResponseHeaders(302, -1);
-        t.close();
+
+        redirect(t, t.getRequestURI().toString());
     }
 }
