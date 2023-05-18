@@ -19,7 +19,7 @@ def compileAndExecutionC(fileName, filePath):                                   
                                 stderr=subprocess.PIPE,
                                 universal_newlines=True)
 
-
+    
     while True:
             outputCompile = processCompile.stdout.readline()                    ##debug use only lines
             print(outputCompile.strip())                                        ##
@@ -27,11 +27,14 @@ def compileAndExecutionC(fileName, filePath):                                   
             returnCodeCompile = processCompile.poll()
             if returnCodeCompile is not None:
 
-                process = subprocess.Popen([exeArg], 
-                                    stdout=subprocess.PIPE, 
-                                    stderr=subprocess.PIPE,
-                                    universal_newlines=True)
-
+                try:
+                    process = subprocess.Popen([exeArg], 
+                                      stdout=subprocess.PIPE, 
+                                      stderr=subprocess.PIPE,
+                                      universal_newlines=True)
+                except:
+                    ans = "dfewfwegwgewgew"
+                    return ans
                 while True:
                     return_code = process.poll()
                     if return_code is not None:
@@ -65,11 +68,14 @@ def compileAndExecutionPY(fileName, filePath):
             returnCodeCompile = processCompile.poll()
             if returnCodeCompile is not None:
 
-                process = subprocess.Popen(['python3', exeArg], 
+                try:
+                    process = subprocess.Popen(['python3', exeArg], 
                                     stdout=subprocess.PIPE, 
                                     stderr=subprocess.PIPE,
                                     universal_newlines=True)
-
+                except:
+                    ans = "dwdwdw"
+                    return ans
                 while True:
                     return_code = process.poll()
                     if return_code is not None:
