@@ -9,6 +9,7 @@ import java.util.HashMap;
 import com.sun.net.httpserver.HttpExchange;
 
 import main.HtmlHelper;
+import main.ProtocolMethods;
 import main.QuizManager;
 import main.UserManager;
 import main.quiz.Quiz;
@@ -46,7 +47,11 @@ public class QuizPage extends AbstractPageHandler {
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
-        data.put("questionID", id.toUpperCase());
+
+
+        String questionText = ProtocolMethods.getQuestion("localhost", 3000, Integer.parseInt(id), "TXT");
+
+        data.put("questionID", questionText);
         data.put("answer", answer);
         data.put("button",
                 attempts > 0 ? HtmlHelper.createButton("Submit") : HtmlHelper.appendError("No More Attempts"));

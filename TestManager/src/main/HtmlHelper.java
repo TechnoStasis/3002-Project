@@ -72,6 +72,10 @@ public class HtmlHelper {
         return "<button type=\"submit\">" + name + "</button>";
     }
 
+    public static final String createSubmitButton(String id, String name) {
+        return "<input type=\"submit\" name=\"" + id + "\"" + " value=\"" + name + "\">";
+    }
+
     public static final String paragraphTag(String name) {
         return "<p>" + name + "</p>";
     }

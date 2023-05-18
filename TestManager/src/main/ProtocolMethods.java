@@ -10,7 +10,15 @@ import java.io.IOException;
 
 public class ProtocolMethods {
 
-    public static int[] get_question_ids(String serverHostname, int serverPort, int questionNumber, String language) {
+    /**
+     * 
+     * @param serverHostname
+     * @param serverPort
+     * @param questionNumber 
+     * @param language C for C, P for Python
+     * @return
+     */
+    public static int[] getQuestionIds(String serverHostname, int serverPort, int questionNumber, String language) {
         try (Socket clientSocket = new Socket(serverHostname, serverPort);
                 InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
@@ -83,11 +91,15 @@ public class ProtocolMethods {
         return null;
     }
 
-    public static String getQuestion(String serverHostname, int serverPort, int question_number, String Option) {// when
-                                                                                                                 // wanting
-                                                                                                                 // question
-                                                                                                                 // or
-                                                                                                                 // answer
+    /**
+     * 
+     * @param serverHostname 
+     * @param serverPort
+     * @param question_number
+     * @param Option TXT or DS, whether it's an answer or the text description of the question
+     * @return
+     */
+    public static String getQuestion(String serverHostname, int serverPort, int question_number, String Option) {
         try (Socket clientSocket = new Socket(serverHostname, serverPort);
                 InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
@@ -183,7 +195,16 @@ public class ProtocolMethods {
         return hexString.toString();
     }
 
-    public static String Mark_Question(String serverHostname, int serverPort, String answer, int q_id, int q_type) { // WHen
+    /**
+     * 
+     * @param serverHostname
+     * @param serverPort
+     * @param answer
+     * @param q_id
+     * @param q_type 2 = C 3 = python
+     * @return
+     */
+    public static String markQuestion(String serverHostname, int serverPort, String answer, int q_id, int q_type) { // WHen
                                                                                                                      // wanting
                                                                                                                      // True
                                                                                                                      // or

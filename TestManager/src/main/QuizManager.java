@@ -57,7 +57,7 @@ public class QuizManager {
         return new File(getUserQuizPath(user) + "/" + "index.txt");
     }
 
-    public void createNewQuiz(User user) {
+    public void createNewQuiz(User user, String type) {
         createUserQuizPath(user);
 
         String timestamp = LocalDateTime.now().toString();
@@ -69,11 +69,13 @@ public class QuizManager {
                 file.write(timestamp);
                 file.close();
 
+                int[] ids = ProtocolMethods.getQuestionIds("localhost", 3000, 10, type);
+
                 FileWriter quizFile = new FileWriter(f);
-                quizFile.write("type:python\n"); //Get the type of the quiz aka which QB to call
+                quizFile.write("type:" + type + "\n"); // Get the type of the quiz aka which QB to call
                 for (int i = 1; i <= 10; i++) {
                     quizFile.write("q" + i + ":3:0");
-                    quizFile.write(":id" + "\n"); // Get the id for this specific question
+                    quizFile.write(":" + ids[i - 1] + "\n"); // Get the id for this specific question
                 }
                 quizFile.close();
 

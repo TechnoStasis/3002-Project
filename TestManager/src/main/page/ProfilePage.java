@@ -1,6 +1,9 @@
 package main.page;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -49,10 +52,14 @@ public class ProfilePage extends AbstractPageHandler {
                   + HtmlHelper.boldTag(" Marks: " + q.totalMarks() + "/30"));
 
     dataToHTML.put("pastquizzes", pastQuizzes);
-    dataToHTML.put("button",
-        HtmlHelper.createButton(
-            QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) != null ? "Continue Quiz"
-                : "Start New Quiz"));
+
+    if (QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) == null) {
+      dataToHTML.put("button1", HtmlHelper.createSubmitButton("C", "Start New C Quiz"));
+      dataToHTML.put("button2", HtmlHelper.createSubmitButton("P", "Start New Python Quiz"));
+    } else {
+      dataToHTML.put("button1", HtmlHelper.createSubmitButton("continue", "Continue"));
+      dataToHTML.put("button2", "");
+    }
 
     String htmlPage = HtmlHelper.render(this.htmlPage, dataToHTML);
 
@@ -70,8 +77,18 @@ public class ProfilePage extends AbstractPageHandler {
       }
     }
 
+    InputStream io = t.getRequestBody();
+    InputStreamReader inputStreamReader = new InputStreamReader(io);
+    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+    String answer = bufferedReader.readLine();
+
+    System.out.println(answer);
+
     if (QuizManager.INSTANCE.getCurrentQuiz(UserManager.INSTANCE.getUser(user)) == null)
-      QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user));
+      QuizManager.INSTANCE.createNewQuiz(UserManager.INSTANCE.getUser(user), answer.split("=")[0]);
+
+
+
 
     redirect(t, "quiz");
   }

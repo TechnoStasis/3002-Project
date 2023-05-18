@@ -71,8 +71,8 @@ public class TestManager {
 
 			accessPoints.put("Python", new Pair("localhost", "3000"));
 
-			ProtocolMethods.Mark_Question("localhost", 4000, "blah blah", 7, 3);
-
+			//Object o = ProtocolMethods.markQuestion("localhost", 3000, "blah blah", 23, 3);
+			//System.out.println(o);
 		} catch (Exception e) {
 			System.out.println("Failed to initialize server");
 			e.printStackTrace();
