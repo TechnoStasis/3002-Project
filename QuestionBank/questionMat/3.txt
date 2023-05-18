@@ -1,3 +1,0 @@
-Question: What is the lower most layer of the OSI model?
-
-A. The Network layer  B. The Application layer  C. The Physical layer

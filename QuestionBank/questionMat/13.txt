@@ -1,3 +1,0 @@
-Question: Where does the LinkedList method belong to?
-
-A. Java.util  B. Java.io  C. System.out

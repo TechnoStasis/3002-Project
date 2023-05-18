@@ -1,3 +1,0 @@
-Question: What kind of packets are more suitable to be discarded in an event of flow control?
-
-A. High hop count  B. Download  C. Multimedia

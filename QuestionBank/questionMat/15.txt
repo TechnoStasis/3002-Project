@@ -1,3 +1,0 @@
-Question: What is an ICMP packet used for?
-
-A. Multimedia  B. Handshakes  C. Error messaging
