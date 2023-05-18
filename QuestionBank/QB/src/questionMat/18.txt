@@ -1,3 +1,0 @@
-Question: What is stdout?
-
-A. something  B. nothing  C. output

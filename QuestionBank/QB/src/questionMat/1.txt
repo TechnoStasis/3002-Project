@@ -1,3 +1,0 @@
-Question: What is a null pointer exception?
-
-A. An error  B. A pointer  C. An application attempts to use null in a case where an object is required 

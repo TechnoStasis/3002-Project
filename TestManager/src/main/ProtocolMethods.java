@@ -36,7 +36,7 @@ public class ProtocolMethods {
             outputStream.write(request.getBytes()); // Send request to server
             byte[] ack = new byte[1];
             if (inputStream.read(ack) != -1 && ack[0] == 0x03) { // ACK received for QF request
-                String payload = questionNumber + "#" + language; // Q number and language of question separated by #
+                String payload = questionNumber + "$" + language; // Q number and language of question separated by $
                 outputStream.write(payload.getBytes());
                 if (inputStream.read(ack) != -1 && ack[0] == 0x04) { // ACK received for question number and language
                                                                      // request
@@ -234,7 +234,7 @@ public class ProtocolMethods {
                 return null;
             }
 
-            String command = answer + "#" + q_type + "#" + q_id;
+            String command = answer + "$" + q_type + "$" + q_id;
             // System.out.println(command);
             byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
 

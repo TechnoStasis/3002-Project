@@ -11,7 +11,7 @@ def compileAndExecutionC(fileName, filePath):                                   
 
     objName = (fileName.strip())[:-2]
     path = filePath.strip()
-    exeArg = "./" + objName
+    exeArg = "" + objName
     ans = ""
 
     processCompile = subprocess.Popen(['cc', '-o', objName, path], 
@@ -133,7 +133,7 @@ def assessor(AInput, QType, QRef):                                             #
         print("Debug dir2:" + os.path.realpath(AInput))
         QRefT = "A" + str(QRef).strip() + ".c"
         usrOpt = compileAndExecutionC(AInput, os.path.realpath(AInput)).strip()
-        opt = compileAndExecutionC(QRefT, os.path.realpath(QRefT)).strip()
+        opt = compileAndExecutionC(os.path.realpath(QRefT), os.path.realpath(QRefT)).strip()
 
         print("Debug ans: " + usrOpt + "  " + opt)
 
@@ -187,7 +187,7 @@ def main(HOST, PORT):
                             conn.sendall(ack)
 
                         msg = spec.decode('utf-8')
-                        input = msg.split('#')
+                        input = msg.split('$')
 
                         QList = rngQuestion(int(input[0]), str(input[1]))
 
@@ -330,7 +330,7 @@ def main(HOST, PORT):
 
                         msg = spec
                         print(msg)
-                        input = msg.split('#')
+                        input = msg.split('$')
 
                         if(int(input[1]) != 1):
                             #need to unserealise input[0] (convert it back to student written code in plain txt) when QType = 2 or 3, in to a plain txt file then rename it into a C or python file        *_TODO_*
@@ -355,7 +355,6 @@ def main(HOST, PORT):
                                 newPath = str(os.path.realpath("studentA.txt"))[:-4] + ".py"
                                 os.rename(oldPath, newPath)
                         
-                            print(input[1])
                         
                             output = assessor(newPath, int(input[1]), int(input[2]))
 
