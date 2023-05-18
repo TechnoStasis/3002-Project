@@ -225,8 +225,7 @@ def main(HOST, PORT):
 
                         with open("studentA.txt", "wb") as outfile:
                             #unserealise input[0] into this file        *_TODO_*
-
-                        oldPath = os.path.realpath("studentA.txt")
+                          oldPath = os.path.realpath("studentA.txt")
 
                         if input[1] == 2:
                             newPath = str(os.path.realpath("studentA.txt"))[:-4] + ".c"
