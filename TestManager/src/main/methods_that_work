@@ -233,20 +233,23 @@ import java.io.IOException;
                 }
             }
 
-            int bufferSize = 1024;
-            byte[] buffer = new byte[bufferSize];
-            int bytesRead;
-            StringBuilder stringBuilder = new StringBuilder();
-            System.out.println("This is just before its stuck");
+         //   int bufferSize = 1024;
+          //  byte[] buffer = new byte[bufferSize];
+          //  int bytesRead;
+           // StringBuilder stringBuilder = new StringBuilder();
+           // System.out.println("This is just before its stuck");
 
 
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                stringBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
-            }
+            //while ((bytesRead = inputStream.read(buffer)) != -1) {
+            //    stringBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+            //}
 
+            byte[] buffer = new byte[1024];
+            int bytesRead = inputStream.read(buffer);
+            String receivedMessage = new String(buffer, 0, bytesRead); 
             
             System.out.println("THis is where it is stuck?");
-            String[] splitData = stringBuilder.toString().split(" ", 2);
+            String[] splitData = receivedMessage.toString().split(" ", 2);
             String receivedHash = splitData[0];
             String receivedQuestion = splitData[1];
     
