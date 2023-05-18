@@ -65,6 +65,8 @@ public class TestManager {
 			server.start();
 			System.out.println("Starting server at " + a.getHostName() + ":" + a.getPort());
 
+			ProtocolMethods.Mark_Question("localhost", 3000, "blah blah", 7, 9);
+
 		} catch (Exception e) {
 			System.out.println("Failed to initialize server");
 			e.printStackTrace();

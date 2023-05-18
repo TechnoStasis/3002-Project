@@ -183,18 +183,13 @@ public class ProtocolMethods {
         return hexString.toString();
     }
 
-    public static String Mark_Question(String serverHostname, int serverPort, String answer, int q_id, int q_type) { // WHen
-                                                                                                                     // wanting
-                                                                                                                     // True
-                                                                                                                     // or
-                                                                                                                     // False
-                                                                                                                     // for
-                                                                                                                     // question
-                                                                                                                     // mark
-        try (Socket clientSocket = new Socket(serverHostname, serverPort);
-                InputStream inputStream = clientSocket.getInputStream();
-                OutputStream outputStream = clientSocket.getOutputStream()) {
+    
 
+    public static String Mark_Question(String serverHostname, int serverPort, String answer, int q_id, int q_type) { // WHen wanting True or False for question mark
+        try (Socket clientSocket = new Socket(serverHostname, serverPort);
+             InputStream inputStream = clientSocket.getInputStream();
+             OutputStream outputStream = clientSocket.getOutputStream()) {
+    
             outputStream.write("MK".getBytes());
             byte[] ack = new byte[1];
             inputStream.read(ack);
@@ -202,24 +197,32 @@ public class ProtocolMethods {
                 System.out.println("Acknowledgement for MK request not received");
                 return null;
             }
-
+    
             String command = answer + "#" + q_id + "#" + q_type;
+            System.out.println(command);
             byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
-
+    
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = digest.digest(commandBytes);
             byte[] hashCheck = bytesToHex(hashedBytes).getBytes(StandardCharsets.UTF_8);
-
+    
             byte[] payload = new byte[hashCheck.length + 1 + commandBytes.length];
             System.arraycopy(hashCheck, 0, payload, 0, hashCheck.length);
             payload[hashCheck.length] = ' ';
             System.arraycopy(commandBytes, 0, payload, hashCheck.length + 1, commandBytes.length);
 
+            //Debugging
+         //   String payloadString = new String(payload, StandardCharsets.UTF_8);
+          //  System.out.println(payloadString);
+            
+    
             outputStream.write(payload);
+            outputStream.flush();
+            System.out.println(payload);
             System.out.println("SEnt payload already");
-
+    
             boolean acknowledged = false;
-            while (!acknowledged) {
+            while (!acknowledged ) {
                 inputStream.read(ack);
                 if (ack[0] == 0x04) {
                     System.out.println("Payload acknowledged");
@@ -231,21 +234,26 @@ public class ProtocolMethods {
                 }
             }
 
-            int bufferSize = 1024;
-            byte[] buffer = new byte[bufferSize];
-            int bytesRead;
-            StringBuilder stringBuilder = new StringBuilder();
-            System.out.println("This is just before its stuck");
+         //   int bufferSize = 1024;
+          //  byte[] buffer = new byte[bufferSize];
+          //  int bytesRead;
+           // StringBuilder stringBuilder = new StringBuilder();
+           // System.out.println("This is just before its stuck");
 
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                stringBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
-            }
 
+            //while ((bytesRead = inputStream.read(buffer)) != -1) {
+            //    stringBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+            //}
+
+            byte[] buffer = new byte[1024];
+            int bytesRead = inputStream.read(buffer);
+            String receivedMessage = new String(buffer, 0, bytesRead); 
+            
             System.out.println("THis is where it is stuck?");
-            String[] splitData = stringBuilder.toString().split(" ", 2);
+            String[] splitData = receivedMessage.toString().split(" ", 2);
             String receivedHash = splitData[0];
             String receivedQuestion = splitData[1];
-
+    
             MessageDigest recieved_digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedHash = recieved_digest.digest(receivedQuestion.getBytes(StandardCharsets.UTF_8));
             String calculatedHash = bytesToHex(encodedHash);
@@ -253,23 +261,25 @@ public class ProtocolMethods {
 
             if (calculatedHash.equals(receivedHash)) {
                 System.out.println("Nice it was the correct hash, correct data");
-                outputStream.write(new byte[] { 0x05 });
-
+                outputStream.write(new byte[]{0x05});
+    
+    
                 int receivedChar;
-                while ((receivedChar = inputStream.read()) != -1) {
+                while ((receivedChar = inputStream.read()) != -1){
                     char character = (char) receivedChar;
-                    if (character == '@') {
-                        byte[] endDataAck = { 0x06 };
+                    if (character == '@')
+                        {
+                        byte[] endDataAck = {0x06};
                         outputStream.write(endDataAck);
                         System.out.println("Ack sent for end of data");
-                        break; // have to break outta loop
-                    }
+                        break; //have to break outta loop
+                        }
                 }
-
+    
                 outputStream.close();
                 inputStream.close();
                 clientSocket.close();
-
+    
                 return receivedQuestion;
             } else {
                 System.out.println("Hash mismatch");
@@ -277,7 +287,8 @@ public class ProtocolMethods {
         } catch (IOException | NoSuchAlgorithmException | InterruptedException e) {
             e.printStackTrace();
         }
-
+    
         return null;
     }
+
 }
