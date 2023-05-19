@@ -11,6 +11,11 @@ import java.util.Map;
 
 import main.users.User;
 
+/**
+ * @authors 22887893 YVES MIGUEL REYES 33.3%
+ * @authors 23262446 SRINIKETH KARLAPUDI 33.3%
+ * @authors 23468614 CHENG LI 33.3%
+ */
 public class UserManager {
 
     public static final UserManager INSTANCE = new UserManager(

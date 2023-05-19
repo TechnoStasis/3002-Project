@@ -129,8 +129,8 @@ public class ProtocolMethods {
                         MessageDigest digest = MessageDigest.getInstance("SHA-256");
                         byte[] encodedHash = digest.digest(received_q_ids.getBytes(StandardCharsets.UTF_8));
                         String calculatedHash = bytesToHex(encodedHash);
-                        // System.out.println(error); //Add error > 0 in if statement to simulate false
-                        // hash
+                        
+                        
 
                         if (calculatedHash.equals(receivedHash)) {
                             correctHash = true;
@@ -143,6 +143,7 @@ public class ProtocolMethods {
                                                                                                            // numbers
                                                                                                            // only
                                 questionIds[i] = Integer.parseInt(extractedNumberString);
+                                result[i] = questionIds[i];
                             }
 
                             int receivedChar;

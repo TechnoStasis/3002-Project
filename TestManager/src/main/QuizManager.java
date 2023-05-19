@@ -17,6 +17,11 @@ import java.util.HashMap;
 import main.quiz.Quiz;
 import main.users.User;
 
+/**
+ * @authors 22887893 YVES MIGUEL REYES 33.3%
+ * @authors 23262446 SRINIKETH KARLAPUDI 33.3%
+ * @authors 23468614 CHENG LI 33.3%
+ */
 public class QuizManager {
 
     public static final QuizManager INSTANCE = new QuizManager(
