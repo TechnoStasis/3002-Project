@@ -7,10 +7,19 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import main.TestManager.Pair;
 
 public class ProtocolMethods {
+
+	private volatile boolean isBlocking = false;
+
+    public boolean isBlocking() {
+        return this.isBlocking;
+    }
+    
 
     /**
      * 
@@ -25,7 +34,6 @@ public class ProtocolMethods {
         Pair address = TestManager.accessPoints.get(qb);
         String serverHostname = address.left;
         int serverPort = Integer.parseInt(address.right);
-
         try (Socket clientSocket = new Socket(serverHostname, serverPort);
                 InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
@@ -33,36 +41,67 @@ public class ProtocolMethods {
 
             // When sending QF Request
             String request = "QF";
-            outputStream.write(request.getBytes()); // Send request to server
+            outputStream.write(request.getBytes());
             byte[] ack = new byte[1];
             if (inputStream.read(ack) != -1 && ack[0] == 0x03) { // ACK received for QF request
                 String payload = questionNumber + "$" + language; // Q number and language of question separated by $
                 outputStream.write(payload.getBytes());
                 if (inputStream.read(ack) != -1 && ack[0] == 0x04) { // ACK received for question number and language
                                                                      // request
-                    byte[] buffer = new byte[1024];
-                    int bytesRead = inputStream.read(buffer);
 
-                    if (bytesRead > 0) {
-                        String receivedMessage = new String(buffer, 0, bytesRead);
-                        String[] splitData = receivedMessage.split(" ", 2);
+                    boolean correctHash = false;
+                    String received_q_ids = null;
+                    // int error = 0; // un comment to simulate wrong hash
+
+                    while (!correctHash) {
+                        List<Byte> buffer = new ArrayList<>();
+                        int bytesRead;
+                        byte[] tempBuffer = new byte[1024];
+
+                        while ((bytesRead = inputStream.read(tempBuffer)) != -1) {
+                            for (int i = 0; i < bytesRead + 1; i++) {
+                                buffer.add(tempBuffer[i]);
+                                if (tempBuffer[i] == 64) // '@' means the connection is properly sent
+                                {
+                                    break;
+                                }
+                            }
+                            if (tempBuffer[bytesRead - 1] == 64) {
+                                break;
+                            }
+                        }
+
+                        byte[] recievedBytes = new byte[buffer.size()];
+                        for (int i = 0; i < buffer.size(); i++) {
+                            recievedBytes[i] = buffer.get(i);
+                        }
+
+                        String receivedMessage = new String(recievedBytes, "UTF-8");
+
+                        String[] splitData = receivedMessage.toString().split(" ", 2);
                         String receivedHash = splitData[0];
-                        String received_q_ids = splitData[1];
+                        received_q_ids = splitData[1];
+                        if (received_q_ids.length() > 0) { // want to remove the '@' at the end of the string
+                            received_q_ids = received_q_ids.substring(0, received_q_ids.length() - 1);
+                            System.out.println(received_q_ids);
+                        }
 
                         MessageDigest digest = MessageDigest.getInstance("SHA-256");
                         byte[] encodedHash = digest.digest(received_q_ids.getBytes(StandardCharsets.UTF_8));
                         String calculatedHash = bytesToHex(encodedHash);
+                        // System.out.println(error); //Add error > 0 in if statement to simulate false
+                        // hash
 
                         if (calculatedHash.equals(receivedHash)) {
-                            // System.out.println("Nice, it was the correct hash, correct data");
+                            correctHash = true;
                             byte[] dataAck = { 0x04 };
                             outputStream.write(dataAck);
-                            System.out.println("ACK sent for data");
-
                             String[] questionIdsArray = received_q_ids.split(",");
                             int[] questionIds = new int[questionIdsArray.length];
                             for (int i = 0; i < questionIdsArray.length; i++) {
-                                String extractedNumberString = questionIdsArray[i].replaceAll("\\D+", "");
+                                String extractedNumberString = questionIdsArray[i].replaceAll("\\D+", ""); // Ensure
+                                                                                                           // numbers
+                                                                                                           // only
                                 questionIds[i] = Integer.parseInt(extractedNumberString);
                             }
 
@@ -72,7 +111,6 @@ public class ProtocolMethods {
                                 if (character == '@') {
                                     byte[] endDataAck = { 0x05 };
                                     outputStream.write(endDataAck);
-                                    System.out.println("Ack sent for end of data");
                                     break; // Break out of the loop when the end of data is received
                                 }
                             }
@@ -82,13 +120,14 @@ public class ProtocolMethods {
                             clientSocket.close();
                             return questionIds;
                         } else {
-                            System.out.println("Hash mismatch");
+                            // error++;
+                            byte[] incorrect = { 0x10 };
+                            outputStream.write(incorrect);
                         }
                     }
                 }
             } else {
                 Thread.sleep(2000);
-                System.out.println("Acknowledgement for QF request not received, re-sending");
                 outputStream.write(request.getBytes());
             }
         } catch (Exception e) {
@@ -122,72 +161,79 @@ public class ProtocolMethods {
                 Thread.sleep(2000);
                 outputStream.write(Option.getBytes());
                 inputStream.read(ack);
-                if (ack[0] != 0x03) {
-                    // System.out.println("Acknowledgement for TXT request not received,
-                    // re-sending");
-                    return null;
-                }
             }
 
             String q_id = Integer.toString(question_number);
             outputStream.write(q_id.getBytes());
             inputStream.read(ack);
             if (ack[0] != 0x04) {
-                // System.out.println("Acknowledgement for question number request not
-                // received");
-                return null;
+                return null; // method dies maybe want to change?
             } else {
-                // System.out.println("Acknowledgement for question number request received");
+                System.out.println("Acknowledgement for question number request received");
             }
 
-            // int bufferSize = 1024;
-            // byte[] buffer = new byte[bufferSize];
-            // int bytesRead;
-            // StringBuilder stringBuilder = new StringBuilder();
+            boolean correctHash = false;
+            String receivedQuestion = null;
 
-            // while ((bytesRead = inputStream.read(buffer)) != -1) {
-            // stringBuilder.append(new String(buffer, 0, bytesRead,
-            // StandardCharsets.UTF_8));
-            // System.out.println(bytesRead);
-            // }
+            while (!correctHash) {
+                List<Byte> buffer = new ArrayList<>();
+                int bytesRead;
+                byte[] tempBuffer = new byte[1024];
+                while ((bytesRead = inputStream.read(tempBuffer)) != -1) {
+                    for (int i = 0; i < bytesRead + 1; i++) {
+                        buffer.add(tempBuffer[i]);
+                        if (tempBuffer[i] == 64) // '@' means the connection is properly sent
+                        {
+                            break;
+                        }
 
-            byte[] buffer = new byte[1024];
-            int bytesRead = inputStream.read(buffer);
+                    }
 
-            String receivedMessage = new String(buffer, 0, bytesRead); // jank method , put a proper check
-            // System.out.println("The built string is " + receivedMessage);
-
-            String[] splitData = receivedMessage.toString().split(" ", 2);
-            String receivedHash = splitData[0];
-            String receivedQuestion = splitData[1];
-
-            // System.out.println(receivedQuestion);
-
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedHash = digest.digest(receivedQuestion.getBytes(StandardCharsets.UTF_8));
-            String calculatedHash = bytesToHex(encodedHash);
-
-            if (calculatedHash.equals(receivedHash)) {
-                // System.out.println("Nice it was the correct hash, correct data");
-                outputStream.write(new byte[] { 0x05 });
-
-                int receivedChar;
-                while ((receivedChar = inputStream.read()) != -1) {
-                    char character = (char) receivedChar;
-                    if (character == '@') {
-                        byte[] endDataAck = { 0x06 };
-                        outputStream.write(endDataAck);
-                        // System.out.println("Ack sent for end of data");
+                    if (tempBuffer[bytesRead - 1] == 64) {
+                        break;
                     }
                 }
 
-                outputStream.close();
-                inputStream.close();
-                clientSocket.close();
+                byte[] recievedBytes = new byte[buffer.size()];
+                for (int i = 0; i < buffer.size(); i++) {
+                    recievedBytes[i] = buffer.get(i);
+                }
 
-                return receivedQuestion;
-            } else {
-                System.out.println("Hash mismatch");
+                String receivedMessage = new String(recievedBytes, "UTF-8");
+                String[] splitData = receivedMessage.toString().split(" ", 2);
+                String receivedHash = splitData[0];
+                receivedQuestion = splitData[1];
+                if (receivedQuestion.length() > 0) { // want to remove the '@' at the end of the string
+                    receivedQuestion = receivedQuestion.substring(0, receivedQuestion.length() - 1);
+                }
+
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] encodedHash = digest.digest(receivedQuestion.getBytes(StandardCharsets.UTF_8));
+                String calculatedHash = bytesToHex(encodedHash);
+
+                if (calculatedHash.equals(receivedHash)) {
+                    correctHash = true;
+                    outputStream.write(new byte[] { 0x05 });
+
+                    int receivedChar;
+                    while ((receivedChar = inputStream.read()) != -1) {
+                        char character = (char) receivedChar;
+                        if (character == '@') {
+                            byte[] endDataAck = { 0x06 };
+                            outputStream.write(endDataAck);
+                        }
+                        break;
+                    }
+
+                    outputStream.close();
+                    inputStream.close();
+                    clientSocket.close();
+                    return receivedQuestion;
+
+                } else {
+                    byte[] incorrect = { 0x10 };
+                    outputStream.write(incorrect);
+                }
             }
         } catch (IOException | NoSuchAlgorithmException | InterruptedException e) {
             e.printStackTrace();
@@ -235,7 +281,6 @@ public class ProtocolMethods {
             }
 
             String command = answer + "$" + q_type + "$" + q_id;
-            // System.out.println(command);
             byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -247,75 +292,81 @@ public class ProtocolMethods {
             payload[hashCheck.length] = ' ';
             System.arraycopy(commandBytes, 0, payload, hashCheck.length + 1, commandBytes.length);
 
-            // Debugging
-            // String payloadString = new String(payload, StandardCharsets.UTF_8);
-            // System.out.println(payloadString);
-
             outputStream.write(payload);
             outputStream.flush();
-            // System.out.println(payload);
-            // System.out.println("SEnt payload already");
 
             boolean acknowledged = false;
             while (!acknowledged) {
                 inputStream.read(ack);
                 if (ack[0] == 0x04) {
-                    // System.out.println("Payload acknowledged");
                     acknowledged = true;
                 } else {
                     Thread.sleep(2000);
-                    // System.out.println("Acknowledgement for payload not received, re-sending");
                     outputStream.write(payload);
                 }
             }
+            boolean correctHash = false;
+            String receivedQuestion = null;
+            // int error = 0; //uncomment to simulate wrong hash
 
-            // int bufferSize = 1024;
-            // byte[] buffer = new byte[bufferSize];
-            // int bytesRead;
-            // StringBuilder stringBuilder = new StringBuilder();
-            // System.out.println("This is just before its stuck");
+            while (!correctHash) {
+                List<Byte> buffer = new ArrayList<>();
+                int bytesRead;
+                byte[] tempBuffer = new byte[1024];
 
-            // while ((bytesRead = inputStream.read(buffer)) != -1) {
-            // stringBuilder.append(new String(buffer, 0, bytesRead,
-            // StandardCharsets.UTF_8));
-            // }
+                while ((bytesRead = inputStream.read(tempBuffer)) != -1) {
+                    for (int i = 0; i < bytesRead + 1; i++) {
+                        buffer.add(tempBuffer[i]);
+                        if (tempBuffer[i] == 64) // '@' means connection fully sent , some funky case
+                        {
+                            break;
+                        }
+                    }
 
-            byte[] buffer = new byte[1024];
-            int bytesRead = inputStream.read(buffer);
-            String receivedMessage = new String(buffer, 0, bytesRead);
-
-            // System.out.println("THis is where it is stuck?");
-            String[] splitData = receivedMessage.toString().split(" ", 2);
-            String receivedHash = splitData[0];
-            String receivedQuestion = splitData[1];
-
-            MessageDigest recieved_digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedHash = recieved_digest.digest(receivedQuestion.getBytes(StandardCharsets.UTF_8));
-            String calculatedHash = bytesToHex(encodedHash);
-            // System.out.println("Got to just before calculating the hash");
-
-            if (calculatedHash.equals(receivedHash)) {
-                // System.out.println("Nice it was the correct hash, correct data");
-                outputStream.write(new byte[] { 0x05 });
-
-                int receivedChar;
-                while ((receivedChar = inputStream.read()) != -1) {
-                    char character = (char) receivedChar;
-                    if (character == '@') {
-                        byte[] endDataAck = { 0x06 };
-                        outputStream.write(endDataAck);
-                        // System.out.println("Ack sent for end of data");
-                        break; // have to break outta loop
+                    if (tempBuffer[bytesRead - 1] == 64) {
+                        break;
                     }
                 }
+                byte[] recievedBytes = new byte[buffer.size()];
+                for (int i = 0; i < buffer.size(); i++) {
+                    recievedBytes[i] = buffer.get(i);
+                }
+                String receivedMessage = new String(recievedBytes, "UTF-8");
+                String[] splitData = receivedMessage.toString().split(" ", 2);
+                String receivedHash = splitData[0];
+                receivedQuestion = splitData[1];
 
-                outputStream.close();
-                inputStream.close();
-                clientSocket.close();
+                if (receivedQuestion.length() > 0) {
+                    receivedQuestion = receivedQuestion.substring(0, receivedQuestion.length() - 1);
+                }
 
-                return receivedQuestion;
-            } else {
-                System.out.println("Hash mismatch");
+                MessageDigest recieved_digest = MessageDigest.getInstance("SHA-256");
+                byte[] encodedHash = recieved_digest.digest(receivedQuestion.getBytes(StandardCharsets.UTF_8));
+                String calculatedHash = bytesToHex(encodedHash);
+                if (calculatedHash.equals(receivedHash)) {
+                    correctHash = true;
+                    outputStream.write(new byte[] { 0x05 });
+
+                    int receivedChar;
+                    while ((receivedChar = inputStream.read()) != -1) {
+                        char character = (char) receivedChar;
+                        if (character == '@') {
+                            byte[] endDataAck = { 0x06 };
+                            outputStream.write(endDataAck);
+                            break; // have to break outta loop
+                        }
+                    }
+
+                    outputStream.close();
+                    inputStream.close();
+                    clientSocket.close();
+
+                    return receivedQuestion;
+                } else {
+                    // error++;
+                    byte[] incorrect = { 0x10 };
+                    outputStream.write(incorrect);
+                }
             }
         } catch (IOException | NoSuchAlgorithmException | InterruptedException e) {
             e.printStackTrace();

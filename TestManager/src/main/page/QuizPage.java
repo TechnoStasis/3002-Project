@@ -6,12 +6,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import main.CommandList;
 import main.HtmlHelper;
 import main.ProtocolMethods;
 import main.QuizManager;
+import main.ThreadDirector;
 import main.UserManager;
 import main.quiz.Quiz;
 import main.users.User;
@@ -49,8 +53,32 @@ public class QuizPage extends AbstractPageHandler {
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
-        String questionText = ProtocolMethods.getQuestion(quizType, Integer.parseInt(id), "TXT");
+        
+        
+        
+        ThreadDirector threadDirector = new ThreadDirector();
+        Queue<CommandList> commandDump1 = new LinkedList<>();
+        String questionText = null;
+        
+        if(threadDirector.isBlocking()) {
+        	CommandList cmd = new CommandList(quizType, Integer.parseInt(id), "TXT");
+        	commandDump1.add(cmd);
+        	
+        	while(true) {
+        		if(!threadDirector.isBlocking()) {
+        			CommandList obj = commandDump1.poll();
+        			questionText = ProtocolMethods.getQuestion(obj.getcmd1(), obj.getcmd2(), obj.getcmd3());
+        		}
+        	}
+        }
+        else {
+        
+        	questionText = ProtocolMethods.getQuestion(quizType, Integer.parseInt(id), "TXT");
+        	
+        }
 
+                
+        
         if (!correct && attempts <= 0)
             questionText = HtmlHelper.appendError(questionText);
 

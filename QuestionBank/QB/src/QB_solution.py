@@ -400,9 +400,10 @@ def main(HOST, PORT):
                                 time.sleep(2)
                                 conn.send(b'@')
                                 print('End of data sent again, waiting for ACK...')
-                        print("IM LOOKING FOR NEW PATH")
-                        print(newPath)
-                        os.remove(newPath)
+                        try:
+                             os.remove(newPath)
+                        except:
+                            None
                         conn.close()
                         break
 
