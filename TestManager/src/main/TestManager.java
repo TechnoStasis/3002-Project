@@ -81,7 +81,6 @@ public class TestManager {
 			server.start();
 			System.out.println("Starting server at " + a.getHostName() + ":" + a.getPort());
 
-			accessPoints.put("Python", new Pair("localhost", "3000"));
 
 		} catch (Exception e) {
 			System.out.println("Failed to initialize server");
