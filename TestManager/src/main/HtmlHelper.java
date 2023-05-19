@@ -7,6 +7,11 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @authors 22887893 YVES MIGUEL REYES 33.3%
+ * @authors 23262446 SRINIKETH KARLAPUDI 33.3%
+ * @authors 23468614 CHENG LI 33.3%
+ */
 public class HtmlHelper {
 
     /**

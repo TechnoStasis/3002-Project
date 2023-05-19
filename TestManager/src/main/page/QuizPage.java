@@ -6,16 +6,25 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import main.CommandList;
 import main.HtmlHelper;
 import main.ProtocolMethods;
 import main.QuizManager;
+import main.ThreadDirector;
 import main.UserManager;
 import main.quiz.Quiz;
 import main.users.User;
 
+/**
+ * @authors 22887893 YVES MIGUEL REYES 33.3%
+ * @authors 23262446 SRINIKETH KARLAPUDI 33.3%
+ * @authors 23468614 CHENG LI 33.3%
+ */
 public class QuizPage extends AbstractPageHandler {
 
     String htmlPage;
@@ -49,7 +58,27 @@ public class QuizPage extends AbstractPageHandler {
         HashMap<String, Object> data = new HashMap<>();
         data.put("questionnumber", currentQuestion);
         data.put("attempts", attempts + "");
-        String questionText = ProtocolMethods.getQuestion(quizType, Integer.parseInt(id), "TXT");
+
+        ThreadDirector threadDirector = new ThreadDirector();
+        Queue<CommandList> commandDump1 = new LinkedList<>();
+        String questionText = null;
+
+        if (threadDirector.isBlocking()) {
+            CommandList cmd = new CommandList(quizType, Integer.parseInt(id), "TXT");
+            commandDump1.add(cmd);
+
+            while (true) {
+                if (!threadDirector.isBlocking()) {
+                    CommandList obj = commandDump1.poll();
+                    questionText = ProtocolMethods.getQuestion(obj.getcmd1(), obj.getcmd2(), obj.getcmd3());
+                    break;
+                }
+            }
+        } else {
+
+            questionText = ProtocolMethods.getQuestion(quizType, Integer.parseInt(id), "TXT");
+
+        }
 
         if (!correct && attempts <= 0)
             questionText = HtmlHelper.appendError(questionText);

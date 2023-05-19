@@ -6,10 +6,6 @@ import sys
 import time
 import hashlib
 
- # @authors 22887893 YVES MIGUEL REYES 33.3%
- # @authors 23262446 SRINIKETH KARLAPUDI 33.3%
- # @authors 23468614 CHENG LI 33.3%
-
 
 def compileAndExecutionC(fileName, filePath):                                     ##usage: fileName -> helloWorld.c      filePath -> home/user/.../helloWorld.c
 
@@ -404,10 +400,9 @@ def main(HOST, PORT):
                                 time.sleep(2)
                                 conn.send(b'@')
                                 print('End of data sent again, waiting for ACK...')
-                        try:
-                             os.remove(newPath)
-                        except:
-                            None
+                        print("IM LOOKING FOR NEW PATH")
+                        print(newPath)
+                        os.remove(newPath)
                         conn.close()
                         break
 
