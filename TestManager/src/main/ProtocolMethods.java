@@ -20,6 +20,46 @@ public class ProtocolMethods {
         return this.isBlocking;
     }
     
+        
+    public static int[] getQuestionIds(String qb, int questionNumber, String language) {
+    	
+    	Pair address = TestManager.accessPoints.get(qb);
+        String serverHostname = address.left;
+        int serverPort = Integer.parseInt(address.right);
+    	
+        try (Socket clientSocket = new Socket(serverHostname, serverPort)) {
+        	
+        	ThreadDirector threadDirector = new ThreadDirector();
+    		ProtocolMethods protocolMethods = new ProtocolMethods();
+    		
+    		threadDirector.startMonitoring(protocolMethods);
+    		
+    		int[] result = new int[10];
+			
+			Thread clientThread = new Thread(() -> {
+				protocolMethods.QuestionIds(clientSocket, questionNumber, language, result);
+			});
+            clientThread.start();
+            
+            try {
+                clientThread.join();
+                
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            
+            return result;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}	
+    	
+    }
+
+
+
+
 
     /**
      * 
@@ -29,13 +69,9 @@ public class ProtocolMethods {
      * @param language       C for C, P for Python
      * @return
      */
-    public static int[] getQuestionIds(String qb, int questionNumber, String language) {
+    private void  QuestionIds(Socket clientSocket, int questionNumber, String language, int[] result) {
 
-        Pair address = TestManager.accessPoints.get(qb);
-        String serverHostname = address.left;
-        int serverPort = Integer.parseInt(address.right);
-        try (Socket clientSocket = new Socket(serverHostname, serverPort);
-                InputStream inputStream = clientSocket.getInputStream();
+        try (   InputStream inputStream = clientSocket.getInputStream();
                 OutputStream outputStream = clientSocket.getOutputStream()) {
             // System.out.println("Connected to server: " + clientSocket); // Debugging line
 
@@ -49,6 +85,8 @@ public class ProtocolMethods {
                 if (inputStream.read(ack) != -1 && ack[0] == 0x04) { // ACK received for question number and language
                                                                      // request
 
+                            
+                    isBlocking = true;
                     boolean correctHash = false;
                     String received_q_ids = null;
                     // int error = 0; // un comment to simulate wrong hash
@@ -70,6 +108,8 @@ public class ProtocolMethods {
                                 break;
                             }
                         }
+
+                        isBlocking = false;
 
                         byte[] recievedBytes = new byte[buffer.size()];
                         for (int i = 0; i < buffer.size(); i++) {
@@ -118,7 +158,8 @@ public class ProtocolMethods {
                             outputStream.close();
                             inputStream.close();
                             clientSocket.close();
-                            return questionIds;
+                            
+                            result = questionIds;
                         } else {
                             // error++;
                             byte[] incorrect = { 0x10 };
@@ -133,8 +174,6 @@ public class ProtocolMethods {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return null;
     }
 
     /**
