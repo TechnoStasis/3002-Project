@@ -199,7 +199,7 @@ def main(HOST, PORT):
 
                         questionBytes = (str(QList)).encode('utf-8')
                         hashCheck = hashlib.sha256(questionBytes).hexdigest().encode('utf-8')
-                        conn.send(hashCheck + b' ' + questionBytes)
+                        conn.send(hashCheck + b' ' + questionBytes + b'@')
 
                         while True:
                             ack = conn.recv(1024)
@@ -209,7 +209,7 @@ def main(HOST, PORT):
                             else:
                                 #print("No ACK recieved yet. Retrying..., maybe due to ACK not sending or Data being corrupted") #Debug line
                                 time.sleep(2)
-                                conn.send(hashCheck + b' ' + questionBytes)
+                                conn.send(hashCheck + b' ' + questionBytes +b'@')
                                 # print('Data re-sent, waiting for ACK...') #Debugging line
                         
                         conn.send(b'@')
@@ -262,14 +262,14 @@ def main(HOST, PORT):
                         print(answer)
                         answerBytes = (answer).encode('utf-8')
                         hashCheck = hashlib.sha256(answerBytes).hexdigest().encode('utf-8')
-                        conn.send(hashCheck + b' '+ answerBytes)
+                        conn.send(hashCheck + b' '+ answerBytes +b'@')
                         print("Already sent and waiting")
                     
                         while True:
                             ack = conn.recv(1024)
                             if ack != bytes([0x05]):
                                 time.sleep(2)
-                                conn.send(hashCheck + b' ' + answerBytes)
+                                conn.send(hashCheck + b' ' + answerBytes +b'@')
                             else:
                                 print("Reached this part")
                                 break
@@ -297,15 +297,15 @@ def main(HOST, PORT):
 
                         ack = bytes([0x03])
                         conn.sendall(ack)
-
-                        spec = conn.recv(1024)
-                        if not spec:
-                            conn.sendall(encoder("error"))
-                            break
-                        else:
-                            print('lol')
-
-                            
+                        correctHash = False
+                       # re_check = 0
+                        while(correctHash == False):
+                            spec = conn.recv(1024)
+                            if not spec:
+                                conn.sendall(encoder("error"))
+                                break
+                            else:
+                                print('lol')
                             print(spec)
                             data_c = spec.decode('utf-8')
                             print(data_c)
@@ -314,16 +314,18 @@ def main(HOST, PORT):
 
                             hash_server = hashlib.sha256(data_recieved.encode('utf-8'))
                             hash_hex = hash_server.hexdigest()
-
+                            #add re_check > 0 to simulate false hash
                             if hash_hex == hash_recieved:
                                 print('Data was not corrupted')
                                 spec = data_recieved
                                 data_ack = bytes([0x04])
                                 conn.sendall(data_ack)
+                                correctHash = True
                             else:
                                 print('Hash mismatch for recieved data, Data may be corrupted')
-                            
-
+                                data_incorrect = bytes([0x10])
+                                conn.sendall(data_incorrect)
+                               # re_check += 1
 
 
                             #ERROR CHECKING                    *_TODO_* 
@@ -369,13 +371,19 @@ def main(HOST, PORT):
 
                         answerBytes = (str(output)).encode('utf-8')
                         hashCheck = hashlib.sha256(answerBytes).hexdigest().encode('utf-8')
-                        conn.send(hashCheck + b' '+ answerBytes)
+                        conn.send(hashCheck + b' '+ answerBytes + b'@')
+                        print("Sent the following: ")
+                        print(hashCheck)
+                        print(answerBytes)
                             
                         while True:
                             ack = conn.recv(1024)
                             if ack != bytes([0x05]):
                                 time.sleep(2)
-                                conn.send(hashCheck + b' ' + answerBytes)
+                                conn.send(hashCheck + b' ' + answerBytes + b'@')
+                                print("Re-Sent the following:")
+                                print(hashCheck)
+                                print(answerBytes)
                             else:
                                 break
                         
@@ -392,7 +400,9 @@ def main(HOST, PORT):
                                 time.sleep(2)
                                 conn.send(b'@')
                                 print('End of data sent again, waiting for ACK...')
-
+                        print("IM LOOKING FOR NEW PATH")
+                        print(newPath)
+                        os.remove(newPath)
                         conn.close()
                         break
 
@@ -427,13 +437,16 @@ def main(HOST, PORT):
 
                         answerBytes = (answer).encode('utf-8')
                         hashCheck = hashlib.sha256(answerBytes).hexdigest().encode('utf-8')
-                        conn.send(hashCheck + b' '+ answerBytes)
+                        conn.send(hashCheck + b' '+ answerBytes + b'@')
+
+                        
                             
                         while True:
                             ack = conn.recv(1024)
                             if ack != bytes([0x05]):
                                 time.sleep(2)
-                                conn.send(hashCheck + b' ' + answerBytes)
+                                conn.send(hashCheck + b' ' + answerBytes +b'@')
+                                
                             else:
                                 break
                                 
